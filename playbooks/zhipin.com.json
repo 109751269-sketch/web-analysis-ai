@@ -1,0 +1,29 @@
+{
+  "host": "zhipin.com",
+  "updatedAt": "2026-08-15T00:00:00.000Z",
+  "source": "zhipin-demo",
+  "notes": "⚠ 踩坑警告：BOSS直聘风控极强——自动化浏览器会被反复踢到 verify 安全验证页/首页（即使 Cookie 有效、手动访问也会被踢）。当前环境（Playwright Chromium + 本机 IP）已被风控标记。对策：1) 必须 headless=false + 人工完成安全验证（工具会自动等待）；2) 若持续被踢，改用真实 Chrome（channel:'chrome'）或日常浏览器 CDP 连接；3) 降低抓取频率，避免短时间多次访问",
+  "antiBot": {
+    "headless": false,
+    "verifyWaitTimeout": 600000
+  },
+  "login": {},
+  "extract": {
+    "module": "",
+    "containerSelectors": [".job-list-box li", ".job-card-wrapper", ".job-card-box li", ".job-primary"],
+    "incremental": false,
+    "detail": { "enabled": true, "maxItems": 12, "waitMs": 1500, "field": "职位描述" },
+    "fields": [
+      { "name": "职位名称", "patterns": ["job-name", "job-title"] },
+      { "name": "薪资", "patterns": ["salary", "薪资"] },
+      { "name": "公司名称", "patterns": ["company-name", "company-info"] },
+      { "name": "工作地点", "regex": "(深圳|北京|上海|广州|杭州|成都|南京|武汉|西安|苏州|其他)" },
+      { "name": "工作年限", "regex": "(\\d+年(?:以上|以下)?|应届生|经验不限|不限经验|10年以上)" },
+      { "name": "学历", "regex": "(本科|硕士|博士|大专|中专|高中|学历不限|不限)" }
+    ],
+    "limit": 60
+  },
+  "interaction": { "tabs": [] },
+  "pagination": { "enabled": true, "buttonText": "下一页" },
+  "scroll": { "rounds": 2 }
+}

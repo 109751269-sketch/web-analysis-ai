@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>测试商城 - 抓取验证页面</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Microsoft YaHei",sans-serif;background:#f5f6fa;color:#333}
+  header{background:linear-gradient(135deg,#4361ee,#7209b7);color:#fff;padding:20px 28px}
+  header h1{font-size:20px}
+  header p{font-size:12px;opacity:.85;margin-top:4px}
+  .tabs{display:flex;gap:4px;background:#fff;padding:0 20px;border-bottom:1px solid #e6e9f2}
+  .tab{padding:12px 22px;cursor:pointer;border:none;background:none;font-size:14px;color:#666;border-bottom:3px solid transparent}
+  .tab:hover{color:#4361ee}
+  .tab.active{color:#4361ee;font-weight:600;border-bottom-color:#4361ee}
+  main{max-width:1080px;margin:18px auto;padding:0 16px}
+  .panel{display:none}
+  .panel.active{display:block}
+  .section-title{font-size:16px;color:#4361ee;margin:8px 0 14px;padding-left:10px;border-left:4px solid #4361ee}
+  .goods-list{display:grid;grid-template-columns:1fr;gap:10px;max-width:760px}
+  .job-list{display:grid;grid-template-columns:1fr;gap:10px;max-width:760px}
+  .job-card{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 2px 8px rgba(31,45,90,.08)}
+  .job-meta{font-size:13px;color:#333;line-height:2}
+  .job-meta span{margin-right:14px;font-weight:600}
+  .job-desc{font-size:12px;color:#666;background:#f7f9ff;border-radius:8px;padding:8px 12px;margin-top:8px;line-height:1.8}
+  .goods-card{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 2px 8px rgba(31,45,90,.08)}
+  .goods-name{font-size:14px;font-weight:600;margin-bottom:6px}
+  .tag{display:inline-block;font-size:11px;color:#4361ee;background:#eef0ff;border-radius:8px;padding:2px 8px;margin-bottom:8px}
+  .goods-meta{font-size:12px;color:#555;line-height:1.9}
+  .goods-meta span{margin-right:12px}
+  .price{color:#e63946;font-weight:700;font-size:15px}
+  .footer{text-align:center;color:#aaa;font-size:12px;padding:30px}
+  .loading{text-align:center;color:#999;font-size:12px;padding:14px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🛒 测试商城（抓取验证页）</h1>
+  <p>本页面用于验证：tab 切换 · 模块定位 · 条目提取 · 滚动加载 · 字段解析</p>
+</header>
+
+<nav class="tabs" id="tabBar">
+  <button class="tab active" data-tab="hot">热销榜</button>
+  <button class="tab" data-tab="new">新品榜</button>
+  <button class="tab" data-tab="sale">优惠专区</button>
+  <button class="tab" data-tab="rec">推荐</button>
+</nav>
+
+<main>
+  <section class="panel active" id="panel-hot">
+    <h2 class="section-title">热销商品</h2>
+    <div class="goods-list" id="list-hot"></div>
+    <div class="loading" id="loading-hot">下拉加载更多…</div>
+  </section>
+  <section class="panel" id="panel-new">
+    <h2 class="section-title">新品上架</h2>
+    <div class="goods-list" id="list-new"></div>
+    <div class="loading" id="loading-new">下拉加载更多…</div>
+  </section>
+  <section class="panel" id="panel-sale">
+    <h2 class="section-title">优惠专区</h2>
+    <div class="goods-list" id="list-sale"></div>
+    <div class="loading" id="loading-sale">下拉加载更多…</div>
+  </section>
+  <section class="panel" id="panel-rec">
+    <h2 class="section-title">推荐职位</h2>
+    <div class="job-list" id="list-rec"></div>
+    <div class="loading" id="loading-rec">下拉加载更多…</div>
+  </section>
+</main>
+<div class="footer">Web Analysis AI 测试页 · 数据为模拟数据</div>
+
+<script>
+(function () {
+  var NAMES = {
+    hot: ['无线机械键盘 Pro', '4K 电竞显示器 27寸', '降噪蓝牙耳机 Air', '智能手表 S9', '便携咖啡机 Mini', '人体工学椅 Ergo', '氮化镓充电器 65W', '磁吸移动电源 1万mAh', '桌面氛围灯 RGB', '智能门锁 X3', '空气炸锅 5L', '扫地机器人 R1'],
+    new: ['折叠屏手机 Z1', 'AI 翻译笔 2代', '磁悬浮蓝牙音箱', '全自动咖啡机旗舰', '智能跳绳 Pro', '模块化机械键盘', '口袋云台相机', '智能体脂秤 8电极', '车载无线充电支架', '眼部按摩仪 4代', '智能花盆 Planter', '水牙线 便携款']
+  };
+  var TAGS = {
+    hot: ['数码', '数码', '影音', '穿戴', '家居', '办公', '数码', '配件', '家居', '安防', '厨房', '家居'],
+    new: ['手机', '学习', '影音', '厨房', '运动', '办公', '影像', '健康', '车品', '健康', '家居', '个护'],
+    sale: ['服饰', '个护', '食品', '家居', '运动', '美妆', '食品', '个护', '运动', '家居', '服饰', '食品']
+  };
+  var CATEGORY = { hot: '热销', new: '新品', sale: '特惠' };
+
+  var state = { hot: { n: 0, loaded: false }, new: { n: 0, loaded: false }, sale: { n: 0, loaded: false }, rec: { n: 0, loaded: false } };
+
+  // 「推荐」职位数据：公司/岗位/薪资/地点/经验/工作内容
+  var COMPANIES = ['字节跳动', '腾讯', '阿里巴巴', '美团', '拼多多', '华为', '小米', '京东', '快手', '百度', '网易', '滴滴'];
+  var ROLES = ['前端开发工程师', '后端开发工程师', '算法工程师', '测试开发工程师', '产品经理', '数据分析师', '运营专员', 'UI设计师', '运维工程师', '安全工程师'];
+  var CITIES = ['北京', '上海', '深圳', '杭州', '广州'];
+  var JOBS = [];
+  for (var j = 0; j < 30; j++) {
+    JOBS.push({
+      role: ROLES[j % ROLES.length],
+      company: COMPANIES[j % COMPANIES.length],
+      salary: (rand(15, 80)) + '-' + (rand(40, 120)) + 'K·' + (13 + j % 4) + '薪',
+      city: CITIES[j % CITIES.length],
+      exp: ['应届', '1-3年', '3-5年', '5-10年'][j % 4],
+      desc: '工作内容：负责' + ['核心业务系统', '数据平台', '推荐算法', '用户增长产品', '基础架构', '安全体系'][j % 6] +
+        '的设计、开发与优化，参与需求评审与技术方案设计，与产品、设计、运营等多团队协作，推动项目按期落地，并持续改进系统性能与稳定性。'
+    });
+  }
+
+  function rand(min, max) { return Math.round(min + Math.random() * (max - min)); }
+  function daysAgo() { var d = rand(0, 30); return d + '天前'; }
+
+  function cardHTML(name, tag, cat, i) {
+    var price = (rand(29, 5999) / 1).toFixed(2);
+    var sales = (rand(50, 20000) / 100).toFixed(1) + '万';
+    var rating = (rand(35, 50) / 10).toFixed(1);
+    return '<div class="goods-card">' +
+      '<div class="goods-name">' + name + '</div>' +
+      '<span class="tag">' + tag + '</span>' +
+      '<div class="goods-meta">' +
+      '<span class="price">📍价格：¥' + price + '</span>' +
+      '<span>📦销量：' + sales + '</span>' +
+      '<span>⭐评分：' + rating + '</span>' +
+      '<span>🗓上架时间：' + daysAgo() + '</span>' +
+      '<span>🏬渠道：' + cat + '渠道' + (i % 3 === 0 ? '自营' : '商家') + '</span>' +
+      '</div></div>';
+  }
+
+  function loadMore(tab) {
+    if (tab === 'rec') { loadMoreRec(); return; }
+    var st = state[tab];
+    var names = NAMES[tab], tags = TAGS[tab];
+    if (st.n >= names.length) {
+      if (!st.loaded) { document.getElementById('loading-' + tab).textContent = '—— 已加载全部 ——'; st.loaded = true; }
+      return;
+    }
+    var batch = Math.min(4, names.length - st.n);
+    var html = '';
+    for (var i = st.n; i < st.n + batch; i++) {
+      html += cardHTML(names[i], tags[i], CATEGORY[tab], i);
+    }
+    st.n += batch;
+    var el = document.getElementById('list-' + tab);
+    el.insertAdjacentHTML('beforeend', html);
+    document.getElementById('loading-' + tab).textContent = st.n >= names.length ? '—— 已加载全部 ——' : '下拉加载更多…';
+  }
+
+  function loadMoreRec() {
+    var st = state.rec;
+    if (st.n >= JOBS.length) {
+      if (!st.loaded) { document.getElementById('loading-rec').textContent = '—— 已加载全部 ——'; st.loaded = true; }
+      return;
+    }
+    var batch = Math.min(6, JOBS.length - st.n);
+    var html = '';
+    for (var i = st.n; i < st.n + batch; i++) {
+      var job = JOBS[i];
+      html += '<div class="job-card">' +
+        '<div class="job-meta">' +
+        '<span>岗位：' + job.role + '</span>' +
+        '<span>🏢公司：' + job.company + '</span>' +
+        '<span>💰薪资：' + job.salary + '</span>' +
+        '<span>📍地点：' + job.city + '</span>' +
+        '<span>🎓经验要求：' + job.exp + '</span>' +
+        '</div>' +
+        '<div class="job-desc">' + job.desc + '</div></div>';
+    }
+    st.n += batch;
+    var el = document.getElementById('list-rec');
+    el.insertAdjacentHTML('beforeend', html);
+    document.getElementById('loading-rec').textContent = st.n >= JOBS.length ? '—— 已加载全部 ——' : '下拉加载更多…';
+  }
+
+  // tab 切换：懒加载渲染（点击后才生成内容，用于验证点击是否生效）
+  var tabBar = document.getElementById('tabBar');
+  tabBar.addEventListener('click', function (e) {
+    var btn = e.target.closest('.tab');
+    if (!btn) return;
+    var tab = btn.getAttribute('data-tab');
+    document.querySelectorAll('.tab').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('.panel').forEach(function (p) { p.classList.remove('active'); });
+    document.getElementById('panel-' + tab).classList.add('active');
+    loadMore(tab);
+  });
+
+  // 滚动加载
+  var scrollTimer = null;
+  window.addEventListener('scroll', function () {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(function () {
+      if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 260) {
+        var activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
+        loadMore(activeTab);
+      }
+    }, 200);
+  });
+
+  // 初始渲染「热销榜」
+  loadMore('hot');
+})();
+</script>
+</body>
+</html>

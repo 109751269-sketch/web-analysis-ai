@@ -1,0 +1,15 @@
+{
+  "name": "web-analysis-ai",
+  "version": "1.0.0",
+  "description": "AI 网页内容抓取工具：用户输入网址与需求（模块/内容/tab/Cookie）→ 自动抓取 → data.json 落盘（分析由 agent 读取数据后进行）",
+  "main": "lib/crawl.js",
+  "scripts": {
+    "crawl": "node lib/crawl.js",
+    "probe": "node lib/probe.js"
+  },
+  "keywords": ["crawler", "playwright", "ai"],
+  "license": "MIT",
+  "dependencies": {
+    "playwright": "1.62.1"
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "host": "maimai.cn",
+  "updatedAt": "2026-08-16T10:05:28.368Z",
+  "source": "maimai-hot-rank",
+  "notes": "maimai 反爬：必须有头模式（headless=false 会退回登录页）；会话用 Cookie-Editor JSON 或 storageState；话题页字段用 emoji 前缀标签（📍公司：…）。hot-rank 热榜 15 条固定（li:has(img[alt=hot])，排名/标题/标签），下方帖子流（div.px-3.sm:bg-background.sm:px-0 > div，作者/时间/内容）；自动学习（45 条样本）",
+  "antiBot": {
+    "headless": false,
+    "verifyWaitTimeout": 600000
+  },
+  "login": {
+    "successIndicators": [],
+    "pageIndicators": [
+      "/login",
+      "/passport"
+    ]
+  },
+  "extract": {
+    "module": "",
+    "containerSelectors": [],
+    "incremental": false,
+    "detail": null,
+    "fields": [],
+    "pages": [
+      {
+        "name": "热榜",
+        "tabs": [],
+        "limit": 20,
+        "module": "",
+        "containerSelectors": [
+          "li:has(img[alt=\"hot\"])"
+        ],
+        "fields": [
+          {
+            "name": "排名",
+            "patterns": [
+              "z-10 w-4"
+            ]
+          },
+          {
+            "name": "标题",
+            "patterns": [
+              "mx-3 flex-1"
+            ]
+          },
+          {
+            "name": "标签",
+            "regex": "(新|爆|热|荐|沸)$",
+            "group": 1
+          }
+        ]
+      },
+      {
+        "name": "帖子",
+        "tabs": [],
+        "limit": 100,
+        "module": "",
+        "containerSelectors": [
+          "div.px-3.sm\\:bg-background.sm\\:px-0 > div"
+        ],
+        "fields": [
+          {
+            "name": "作者",
+            "regex": "^(.{1,30}?)(?=\\d+小时前|\\d+分钟前|\\d+天前|今天|昨天|\\s)",
+            "group": 1
+          },
+          {
+            "name": "时间",
+            "regex": "(\\d+小时前|\\d+分钟前|\\d+天前|今天|昨天)",
+            "group": 1
+          },
+          {
+            "name": "内容",
+            "regex": "^(.{1,30}?)\\s+(?:\\d+小时前|\\d+分钟前|\\d+天前|今天|昨天)(?:·[^\\n]{0,40}?)?\\s*([\\s\\S]{10,})",
+            "group": 2,
+            "fallback": true
+          }
+        ]
+      }
+    ],
+    "limit": 100
+  },
+  "interaction": {
+    "tabs": []
+  },
+  "pagination": {
+    "enabled": false,
+    "buttonText": ""
+  },
+  "scroll": {
+    "rounds": 8
+  }
+}
