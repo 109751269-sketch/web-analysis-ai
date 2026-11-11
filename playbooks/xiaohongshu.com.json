@@ -1,0 +1,87 @@
+{
+  "host": "xiaohongshu.com",
+  "updatedAt": "2026-11-10T11:00:00.000Z",
+  "source": "manual:反风控基线",
+  "notes": "小红书反爬：① 必须 headless:false，headless 直接进验证码页；② 搜索接口 so.xiaohongshu.com/api/sns/web/v2/search/notes 被风控时返回 HTTP 461（非 401/403），表示机器流量判定；③ 详情页风控触发后跳 /website-login/captcha?verifyType=124 要求 APP 扫码；④ redcaptcha/v2/qr/init 返回 code 40006 = 请求太频繁，说明风控计数已超阈值。",
+  "antiBot": {
+    "headless": false,
+    "verifyWaitTimeout": 300000,
+    "riskSignals": {
+      "blockedStatus": [
+        461
+      ],
+      "captchaUrlPattern": "website-login/captcha",
+      "rateLimitCode": 40006
+    },
+    "throttle": {
+      "searchIntervalMs": 10000,
+      "detailIntervalMs": 9000,
+      "note": "同平台两次搜索至少 10 秒；详情页 8-10 秒。参考 agent-reach 的并发闸标准。",
+      "searchMs": 10000,
+      "detailMs": 9000
+    }
+  },
+  "login": {
+    "successIndicators": [
+      "发布",
+      "消息",
+      "我"
+    ],
+    "pageIndicators": [
+      "/website-login",
+      "/login"
+    ]
+  },
+  "extract": {
+    "module": "",
+    "containerSelectors": [
+      "section.note-item"
+    ],
+    "incremental": false,
+    "detail": null,
+    "fields": [
+      {
+        "name": "标题",
+        "patterns": [
+          "display_title"
+        ]
+      },
+      {
+        "name": "作者",
+        "patterns": [
+          "nickname",
+          "nick_name"
+        ]
+      }
+    ],
+    "pages": [],
+    "limit": 200
+  },
+  "interaction": {
+    "tabs": []
+  },
+  "pagination": {
+    "enabled": false,
+    "buttonText": ""
+  },
+  "scroll": {
+    "rounds": 60
+  },
+  "websiteRules": {
+    "searchApi": "POST https://so.xiaohongshu.com/api/sns/web/v2/search/notes",
+    "detailApiPattern": "xiaohongshu.com/api/sns/web/v1/feed",
+    "xsecTokenRequired": "笔记链接必须带 xsec_token，否则 404；token 只能从搜索 API 响应拿",
+    "scrollForMore": "滚动触发分页，每次 2000ms",
+    "contentNote": "小红书 read 只返回文字描述，不声称理解图片或视频"
+  },
+  "knownIssues": [
+    {
+      "date": "2026-11-09",
+      "issue": "xhs_api.js 以 headless:true 连续请求 47 篇详情（间隔仅 2.5s），触发账号级风控",
+      "rootCause": "headless 暴露自动化特征 + 请求密度过高，风控基于账号+设备+IP 历史行为累积，过阈值后锁定",
+      "fix": "改有头模式；详情间隔提到 9s；遇 461 或验证码页立即停止，不重试",
+      "evidence": "cookie web_session/id_token/a1 均有效至 2027-11，但搜索 API 返回 461、首页 302 到 captcha"
+    }
+  ],
+  "riskLevel": "high"
+}

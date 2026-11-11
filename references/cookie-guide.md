@@ -7,21 +7,24 @@ Cookie 由浏览器按 **domain（域名）** 隔离：`domain=.x.com` 的 cooki
 ## 标准位置（skill 目录内，随 skill 自包含）
 
 ```
-C:\Users\sun\.agents\skills\web-analysis-ai\
+C:\Users\sun\.agents\skills\web-analysis-ai\      ← 唯一实体真源（.claude / .workbuddy 下同名目录是指向此处的 Junction）
 ├── SKILL.md
-├── cookies\               ← 凭证（分享 skill 前先删除本目录）
+├── lib\                   ← 引擎（执行代码，入口 lib/crawl.js；**无 project\ 子目录**）
+├── cookies\               ← 凭证（分享 skill 前先删除本目录；.gitignore 已忽略）
 │   ├── x.com.json
-│   └── maimai.cn.json
+│   └── maimai.json
 └── references\
     └── cookie-guide.md    ← 本文档（任务模板见 SKILL.md Phase 2）
 ```
 
+> ⚠️ 历史文档曾写成 `project\` 子目录，**该目录不存在**（2026-10-25 更正）。另注意 `cookies\` 里的文件名按站点简化（实际是 `maimai.json`，不是 `maimai.cn.json`）。
+
 - 任务文件放**工作区** `F:\despseekharness\crawler\tasks\`，`"authFile"` 用**绝对路径**指向 skill cookies：`C:/Users/sun/.agents/skills/web-analysis-ai/cookies/<站点host>.json`（任务与 cookies 跨目录/跨盘，必须绝对路径）
 - 结构（引擎/工作区分离）：
   ```
-  skill 基目录\
-  ├── project\                   ← 引擎（执行代码+依赖+playbooks）
-  ├── cookies\x.com.json         ← 凭证（分享 skill 前先删除本目录）
+  skill 基目录\                  ← 真源：C:\Users\sun\.agents\skills\web-analysis-ai
+  ├── lib\                       ← 引擎（执行代码+依赖+playbooks；无 project\ 子目录）
+  ├── cookies\x.com.json         ← 凭证（分享 skill 前先删除本目录；.gitignore 已忽略）
   └── references\...
   F:\despseekharness\crawler\    ← 工作区（任务文件、output 产物、临时文件）
   ├── tasks\<任务>.json          ← authFile: "C:/.../cookies/x.com.json"（模板见 SKILL.md Phase 2）
@@ -53,7 +56,8 @@ C:\Users\sun\.agents\skills\web-analysis-ai\
 ## 过期处理
 
 - 会话过期（几小时~几天）：重新 Export 覆盖对应文件，**任务配置不用改**，`authFile` 仍指向同一路径。
-- 任务失败先怀疑 Cookie：看抓取日志 `✓ 会话有效` / `⚠ 域名不匹配` / `未检测到登录特征`。
+- 任务失败先怀疑 Cookie：看抓取日志 `✓ cookie 域名匹配`（**仅表示域名对上，不代表登录仍有效**，2026-10-25 起措辞已更正）/ `⚠ 域名不匹配` / `⚠ 未命中任何 successIndicators`。
+- 想得到**确定性**的登录态判定：在任务里给 `login.successIndicators`（如 `["我的","发帖"]`），引擎会在页面加载后真正校验并打印 `✓ 已确认登录态`。
 
 ## 安全提醒
 

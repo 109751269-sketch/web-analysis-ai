@@ -1,0 +1,12 @@
+# 依赖（可再生成：npm ci 重建；分享/迁移 skill 时排除）
+node_modules/
+package-lock.json
+
+# 本地运行产物
+output/
+*.log
+
+# 2026-10-25 补（B6）：登录凭证与浏览器 profile（内含 Cookies 库）——真凭证，绝不外发/入库
+# 本技能在 ~/.agents/skills 下是唯一实体，.claude / .workbuddy 下同名目录均为指向此处的 Junction
+cookies/
+profiles/

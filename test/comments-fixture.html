@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>离线评论 fixture — 评论区展开与采集自测</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; }
+  #page { max-width: 760px; margin: 0 auto; padding: 16px; }
+  #post { border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
+  ul#comment-list { list-style: none; margin: 0; padding: 0; }
+  li.comment { border-top: 1px solid #eee; padding: 10px 0; }
+  li.reply-item { margin-left: 24px; border-left: 3px solid #ddd; padding-left: 10px; }
+  .author { font-weight: 600; }
+  .time { color: #888; font-size: 12px; }
+  .likes { color: #888; font-size: 12px; }
+  #comments .c, #ms-comments .c { border-bottom: 1px dashed #eee; padding: 8px 0; }
+  button { cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="page">
+  <header><h1>离线评论区 fixture</h1></header>
+
+  <!-- 帖子正文：scrapeComments 的 post 候选（最长的非评论容器） -->
+  <div id="post">
+    <h2>这是一个离线评论 fixture 的帖子正文</h2>
+    <p>用于验证 lib/comments.js 的 expandComments / scrapeComments / harvestComments，全程 file:// 离线，不访问任何网络、不读 cookie。</p>
+    <!-- 诱饵：文案含「展开」但超过 20 字 → expandComments 必须靠"短文本"守卫拒绝点击。
+         若被误点会追加一条含「长文本被误点」的评论，自测据此判定失败。 -->
+    <div id="long-expander">本段是较长的正文段落，其中也出现了「展开」二字，但因为整段文字明显超过二十个字，所以它绝不能被当成展开控件点开。</div>
+  </div>
+
+  <!-- ===== 默认用例：单级 + 多控件（?case 省略） ===== -->
+  <div id="comment-area">
+    <h3>评论 <span id="c-count">0</span></h3>
+    <!-- 评论容器：时间密度法的目标（直接子元素 = 评论块） -->
+    <ul id="comment-list"></ul>
+    <!-- 展开控件区：控件文案必须命中 COMMENT_EXPANDERS，且 ≤20 字 -->
+    <div class="more-bar">
+      <button id="load-more" type="button">加载更多</button>
+    </div>
+  </div>
+
+  <!-- ===== 多级展开用例（?case=multistage）：复刻 task-7 的真实故障形态 =====
+       同一个按钮节点先叫「查看全部12条评论」(id=ms-more1)，点一次后**原地改成**
+       「展开更多」(id=ms-more2)，再点还能加载 —— 这正是"元素身份打标记"会永久跳过的场景。
+       注意 #ms-toolbar 自身的 innerText 恰好也只等于按钮文案，是"点到祖先容器"陷阱的温床。 -->
+  <div id="ms-area" hidden>
+    <h3>多级展开 <span id="ms-count">0</span></h3>
+    <div id="ms-toolbar">
+      <button id="ms-more1" type="button">查看全部12条评论</button>
+    </div>
+    <div id="ms-comments"></div>
+  </div>
+
+  <!-- ===== 点击失败用例（?case=clickfail）：验证"click 没送达 → 记 errors、不打标记" =====
+       <fieldset disabled> 里的按钮：IDL disabled=false、可见、已连接（能通过全部预检），
+       但 el.click() 不会派发任何事件 → 必须被如实计入 stats.errors / clickFails，且**不能**打标记。 -->
+  <div id="cf-area" hidden>
+    <h3>点击失败用例 <span id="cf-count">0</span></h3>
+    <div id="cf-toolbar">
+      <fieldset disabled>
+        <button id="cf-trap" type="button">加载更多</button>
+      </fieldset>
+      <button id="cf-more" type="button">查看全部 2 条评论</button>
+    </div>
+    <div id="cf-comments"></div>
+  </div>
+
+  <!-- ===== 字段语序用例（?case=likes）：likes/author/time 的多种写法 =====
+       评论块刻意做成**单行**「昵称 · 时间 · 赞数 正文」（真实站点最常见的形态），
+       且赞数混用多种语序；author 原实现只认"首行"在这类块上必然落空，这里就是回归点。 -->
+  <div id="likes-area" hidden>
+    <h3>字段语序 <span id="lf-count">0</span></h3>
+    <div id="lf-comments"></div>
+  </div>
+
+  <footer>fixture · 全部数据均由本页脚本生成，无外部请求</footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var IS_MS = /case=multistage/.test(location.search);
+  var IS_CF = /case=clickfail/.test(location.search);
+  var IS_LK = /case=likes/.test(location.search);
+
+  // ================= 默认用例 =================
+  function buildDefault() {
+    var list = document.getElementById('comment-list');
+    var countEl = document.getElementById('c-count');
+    function updateCount() { countEl.textContent = String(list.children.length); }
+
+    // 一条评论 = 一个 li（含 author / time / body / likes 四个块级子元素 → innerText 有换行）
+    function addComment(author, body, time, likes, isReply) {
+      var li = document.createElement('li');
+      li.className = 'comment' + (isReply ? ' reply-item' : '');
+      if (isReply) li.setAttribute('data-reply', '1');
+
+      var a = document.createElement('div'); a.className = 'author'; a.textContent = author;
+      var t = document.createElement('div'); t.className = 'time'; t.textContent = time;
+      var p = document.createElement('p'); p.className = 'body'; p.textContent = body;
+      var l = document.createElement('div'); l.className = 'likes'; l.textContent = likes + ' 赞';
+
+      li.appendChild(a); li.appendChild(t); li.appendChild(p); li.appendChild(l);
+      list.appendChild(li);
+      updateCount();
+      return li;
+    }
+
+    // ---- 初始 5 条 ----
+    var INIT = [
+      ['用户A', '第一条评论：离线 fixture 的正文，用于核对评论条数与字段。', '刚刚', 3],
+      ['用户B', '第二条评论：这条评论下挂着一个楼中楼展开控件。', '2分钟前', 6],
+      ['用户C', '第三条评论：验证时间密度法会选中这个 ul 作为评论容器。', '1小时前', 9],
+      ['用户D', '第四条评论：每条正文长度都超过最短阈值 4 个字。', '昨天', 12],
+      ['用户E', '第五条评论：初始可见的热门评论到此为止。', '3天前', 15]
+    ];
+    for (var i = 0; i < INIT.length; i++) {
+      addComment(INIT[i][0], INIT[i][1], INIT[i][2], INIT[i][3], false);
+    }
+
+    // ---- 展开控件 1：加载更多（点 1 次 → 追加 3 条，并"露出"控件 3）----
+    // 控件 3 在首轮点击前**不在 DOM 里** → 必然只能下一轮才被点到（证明是"循环"而非一次扫平）
+    var loaded = false;
+    var moreBtn = document.getElementById('load-more');
+    moreBtn.addEventListener('click', function () {
+      if (loaded) return;
+      loaded = true;
+      moreBtn.textContent = '已加载';
+      addComment('用户F', '加载更多：第一次点击追加的评论之一。', '4小时前', 2, false);
+      addComment('用户G', '加载更多：第一次点击追加的评论之二。', '5小时前', 5, false);
+      addComment('用户H', '加载更多：第一次点击追加的评论之三。', '6小时前', 1, false);
+      if (!document.getElementById('expand-all')) {
+        var b = document.createElement('button');
+        b.id = 'expand-all';
+        b.type = 'button';
+        b.textContent = '查看全部 2 条评论';
+        b.addEventListener('click', function () {
+          if (b.getAttribute('data-done')) return;
+          b.setAttribute('data-done', '1');
+          b.textContent = '已加载';
+          addComment('用户I', '查看全部：补齐的评论之一。', '7小时前', 0, false);
+          addComment('用户J', '查看全部：补齐的评论之二。', '8小时前', 4, false);
+        });
+        moreBtn.parentNode.appendChild(b);
+      }
+    });
+
+    // ---- 展开控件 2：楼中楼（初始就在 DOM 里，挂在第 2 条评论下 → 追加 2 条 isReply）----
+    var host = list.children[1];
+    var repBtn = document.createElement('button');
+    repBtn.className = 'expand-replies';
+    repBtn.type = 'button';
+    repBtn.textContent = '查看 2 条回复';
+    repBtn.addEventListener('click', function () {
+      if (repBtn.getAttribute('data-done')) return;
+      repBtn.setAttribute('data-done', '1');
+      repBtn.textContent = '已展开';
+      addComment('用户K', '回复 @用户B：同意，我也遇到过同样的问题。', '9小时前', 1, true);
+      addComment('用户L', '回复 @用户B：补充一点细节，供你参考。', '10小时前', 0, true);
+    });
+    host.appendChild(repBtn);
+
+    // ---- 诱饵：长文本（含「展开」但 >20 字）被误点时会追加一条可识别的评论 ----
+    document.getElementById('long-expander').addEventListener('click', function () {
+      addComment('用户Y', '长文本被误点：这条不该出现。', '刚刚', 0, false);
+    });
+
+    // ---- 隐藏控件：不可见，用于验证 expandComments 不会去点不可见元素 ----
+    var hiddenBar = document.createElement('div');
+    hiddenBar.style.display = 'none';
+    var hiddenBtn = document.createElement('button');
+    hiddenBtn.id = 'hidden-more';
+    hiddenBtn.type = 'button';
+    hiddenBtn.textContent = '更多评论';
+    hiddenBtn.addEventListener('click', function () {
+      addComment('用户X', '不该被点到的隐藏控件追加的评论。', '刚刚', 0, false);
+    });
+    hiddenBar.appendChild(hiddenBtn);
+    document.getElementById('comment-area').appendChild(hiddenBar);
+
+    updateCount();
+  }
+
+  // ================= 多级展开用例（task-7 回归） =================
+  function buildMultiStage() {
+    var box = document.getElementById('ms-comments');
+    var countEl = document.getElementById('ms-count');
+    function update() { countEl.textContent = String(box.children.length); }
+    function mk(a, t, likes, txt) {
+      var d = document.createElement('div');
+      d.className = 'c';
+      d.textContent = a + ' · ' + t + ' · 赞 ' + likes + ' ' + txt;
+      box.appendChild(d);
+      update();
+    }
+
+    // 3 条静态评论（与 Lead 的 comments-detail1.html 同形）
+    mk('张三', '2小时前', 3, '这个问题我也遇到过，确实不好回答。');
+    mk('李四', '昨天', 1, '感觉还是实话实说比较好，别编。');
+    mk('王五', '3天前', 0, '我一般说换个环境，简单点。');
+    update();
+
+    var stage = 0;
+    var btn = document.getElementById('ms-more1');
+    btn.addEventListener('click', function () {
+      stage++;
+      if (stage === 1) {
+        mk('赵六', '4小时前', 2, '我觉得主要看你怎么表达，态度比理由重要。');
+        mk('钱七', '昨天', 5, '同感，我上次也是这么说的，顺利拿到 offer。');
+        mk('孙八', '2天前', 1, '关键是要让面试官觉得你稳定。');
+        // ★ 关键：**同一个节点**被改成下一级控件（文案 + id 都变），不是新建元素
+        btn.textContent = '展开更多';
+        btn.id = 'ms-more2';
+      } else if (stage === 2) {
+        mk('周九', '5小时前', 0, '补充一句：别说前公司坏话。');
+        mk('吴十', '前天', 4, '楼上说得对，这个坑我踩过。');
+        document.getElementById('ms-toolbar').innerHTML = '';
+      }
+    });
+  }
+
+  // ================= 点击失败用例（task-7 要求②） =================
+  function buildClickFail() {
+    var box = document.getElementById('cf-comments');
+    var countEl = document.getElementById('cf-count');
+    function update() { countEl.textContent = String(box.children.length); }
+    function mk(a, t, likes, txt) {
+      var d = document.createElement('div');
+      d.className = 'c';
+      d.textContent = a + ' · ' + t + ' · 赞 ' + likes + ' ' + txt;
+      box.appendChild(d);
+      update();
+    }
+
+    mk('甲', '1小时前', 2, '点击失败用例的静态评论一。');
+    mk('乙', '昨天', 0, '点击失败用例的静态评论二。');
+    mk('丙', '2天前', 1, '点击失败用例的静态评论三。');
+    update();
+
+    // 正常控件：能点开、会被打标记（对照组）
+    var btn = document.getElementById('cf-more');
+    btn.addEventListener('click', function () {
+      if (btn.getAttribute('data-done')) return;
+      btn.setAttribute('data-done', '1');
+      btn.textContent = '已加载';
+      mk('丁', '3小时前', 5, '正常控件追加的评论一。');
+      mk('戊', '前天', 2, '正常控件追加的评论二。');
+    });
+
+    // 陷阱控件 #cf-trap 在 <fieldset disabled> 里：不额外挂任何 handler
+    // —— 它本来就收不到 click（这正是"点不动"的真实形态）。
+  }
+
+  // ================= 字段语序用例（task-8）：likes/author/time 多写法 =================
+  function buildLikes() {
+    var box = document.getElementById('lf-comments');
+    var countEl = document.getElementById('lf-count');
+    function update() { countEl.textContent = String(box.children.length); }
+    // 单行块：昵称 · 时间 [· 赞数] 正文（赞数为空时该段整体省略）
+    function mk(a, t, like, body) {
+      var d = document.createElement('div');
+      d.className = 'c';
+      d.textContent = a + ' · ' + t + (like ? ' · ' + like : '') + ' ' + body;
+      box.appendChild(d);
+      update();
+    }
+    // 正文刻意不含「赞/likes」字样 → 能断言 text 里没有元信息残留
+    mk('张三', '2小时前', '赞 3', '前缀语序的数字应被识别。');     // 赞 3
+    mk('李四', '昨天', '5 赞', '后缀语序的数字应被识别。');        // 5 赞
+    mk('王五', '3天前', '12 likes', '英文后缀语序的数字应被识别。'); // 12 likes
+    mk('赵六', '4小时前', '', '完全没有计数字样，应当留空串。');     // 不编造
+    mk('钱七', '30秒前', '赞 0', '计数为零时也要取到数字 0。');      // 0 的假值陷阱
+    mk('孙八', '2周前', '1.2万 赞', '万字换算应得到 12000。');      // 万换算
+    mk('周九', '刚刚', '赞 999', '这一条只用于凑够容器的时间密度。');
+    update();
+  }
+
+  if (IS_MS) {
+    // 多级用例模式下移除默认评论区，避免两个评论容器互相干扰
+    document.getElementById('comment-area').remove();
+    document.getElementById('ms-area').hidden = false;
+    buildMultiStage();
+  } else if (IS_CF) {
+    document.getElementById('comment-area').remove();
+    document.getElementById('cf-area').hidden = false;
+    buildClickFail();
+  } else if (IS_LK) {
+    document.getElementById('comment-area').remove();
+    document.getElementById('likes-area').hidden = false;
+    buildLikes();
+  } else {
+    buildDefault();
+  }
+})();
+</script>
+</body>
+</html>

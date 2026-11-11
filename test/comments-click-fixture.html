@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>点卡片进详情 · 离线 fixture</title>
+<style>
+  body { font-family: -apple-system, sans-serif; margin: 16px; }
+  .card { padding: 8px; border: 1px solid #ccc; margin: 6px 0; cursor: pointer; }
+  #cl { list-style: none; padding-left: 0; }
+  #cl li { padding: 4px 0; border-bottom: 1px solid #eee; }
+</style>
+</head>
+<body>
+<!--
+  用途：test/comments-selftest.js 第 13 节（P0 点卡片 / P1 补抓）
+  列表页：4 张 div[role=button] 卡片，点击后 → 同一文件 ?d=<i>（模拟脉脉「卡片无 href」）
+  详情页：帖子正文 + 「评论 3」计数 + 3 条评论（时间密度法可定位）
+-->
+<div id="app"></div>
+<script>
+  var CARD_COUNT = 4;
+  var COMMENT_COUNT = 3;
+  var q = new URLSearchParams(location.search);
+  var d = q.get('d');
+  var app = document.getElementById('app');
+
+  if (d === null) {
+    var html = '<h1>列表页</h1>';
+    for (var i = 0; i < CARD_COUNT; i++) {
+      html += '<div role="button" class="card" data-i="' + i + '">帖子 ' + (i + 1) +
+        ' 的正文，长度足够超过阈值，用于测试「点卡片进详情」这条路径。</div>';
+    }
+    app.innerHTML = html;
+    Array.prototype.forEach.call(app.querySelectorAll('[role="button"]'), function (el) {
+      el.addEventListener('click', function () {
+        location.href = 'comments-click-fixture.html?d=' + el.getAttribute('data-i');
+      });
+    });
+  } else {
+    var k = Number(d);
+    var lis = '';
+    for (var c = 0; c < COMMENT_COUNT; c++) {
+      lis += '<li>用户' + k + '-' + c +
+        '<span>·</span><span>' + (c + 1) + '小时前</span><span>·</span><span>赞 ' + (c + 1) + '</span>' +
+        '<p class="content">第' + (k + 1) + '帖的第' + (c + 1) + '条评论正文，长度足够。</p></li>';
+    }
+    app.innerHTML =
+      '<article><h2>帖子 ' + (k + 1) + ' 正文</h2>' +
+      '<p>这是第 ' + (k + 1) + ' 个帖子的正文内容，长度足够，不应被当成评论。</p>' +
+      '<h3>评论 <span id="cnt">' + COMMENT_COUNT + '</span></h3>' +
+      '<ul id="cl">' + lis + '</ul></article>';
+  }
+</script>
+</body>
+</html>

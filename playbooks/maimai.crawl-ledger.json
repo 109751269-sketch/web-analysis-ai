@@ -1,0 +1,108 @@
+{
+  "site": "maimai.cn",
+  "note": "脉脉抓取台账 v2（2026-09-12 精简：只保留在抓/待测渠道，删除重复与已弃渠道的用户层记录）。新抓前先读此文件；抓完立即更新 coverage/caught。",
+  "updated": "2026-09-13T16:20:00Z",
+  "policy": {
+    "topicSet": "【固定专题集，2026-09-12 用户确认】不再自行增删专题；新增专题必须由用户给 URL，我再登记。",
+    "noSelfSearch": "【硬红线】禁止为了找新专题而使用 search_center 搜索（风控：≤1次/30min、≤4次/24h，间隔<10min必降级）。只能直接访问用户给的 URL，或走频道页/话题页。",
+    "dataRetention": "所有 output/ 数据永久保留，禁止删除；重跑必须 appendExisting 增量去重合并。",
+    "serial": "全程串行，禁止并发；同一 profile 一次只能一个任务。",
+    "speed": "默认快参 scroll={rounds:800,adaptive:true,delayMinMs:300,delayMaxMs:1500,maxIdleRounds:12,loadWaitMs:3000}（话题/频道页）；URL 含 search_center 自动切保守慢参。注意：瓶颈多为服务端加载，卡顿时调大 loadWaitMs(5000~8000)，不要一味压 delayMinMs。",
+    "feedCap": "topic-detail crtime feed 可见上限≈1万条；主页频道(gossip/recommended)是近期流，只保留最近数天。加轮次/降延迟无效。 【2026-09-12 存疑待复核】几次'13/20轮触底'可能是'加载慢被误判触底'而非真上限；引擎已改为先等加载(waitGrow/loadWaitMs)，需用新逻辑重跑一次再确认该结论是否成立。",
+    "comments": "2026-09-12 已破解：评论在详情页 SSR。列表卡片正文=div[role=button] → 点击跳 /community/gossip-detail/<gid>（或 feed-detail/<id>）→ 评论列表=「子元素含相对时间最多的容器」。实现=harvest_comments.js（逐条落盘，需注入 authFile）。实测 30帖/227评论/2m38s。",
+    "loginMode": "持久化 profile（引擎副 Chrome）：node lib/crawl.js --task=<json>，headless:false，会话存 cookies/maimai.json + profiles/maimai.cn；不碰用户主 Chrome。",
+    "channels": "频道集（2026-09-12 定）：推荐 + 职言。热榜数据太少，已删除，不再抓。"
+  },
+  "topics": {
+    "SxAXPZZ2": {
+      "name": "我来爆个料",
+      "posts": 145099,
+      "caught": 10557,
+      "coverage": "2026-01-02~09-11 密(51天) + 2025-10-14~2026-09-29 稀疏(hot合并,596条新增)",
+      "storage": "output/maimai_topic_baoliao",
+      "url": "https://maimai.cn/community/topic-detail/SxAXPZZ2/crtime",
+      "note": "145,710条(2026-09-13复核上涨)。已抓10,557(7.2%)。2026-09-13复核：hot/default/new 与 crtime 同一内容池(抽样995条与已有交集428)；since/until 只过滤不延展；复核跑约1h20m滚68批未触底但**因关掉 dupStop 且该分支无落盘点→中断丢全部成果**(引擎已修：每5批写 data.partial.json)。分页接口已挖到=POST /community/topic-detail/<id>/<sort> body [{\"id\",\"page\",\"sort\"}]，页内 fetch 返回 SSR HTML(Next.js RSC)，需带 x-deployment-id/RSC 头才能直连深翻页——下一步攻坚点。"
+    },
+    "12dLH8oC3": {
+      "name": "公司印象大爆料",
+      "posts": 14515,
+      "caught": 10753,
+      "coverage": "2025-10-05~2026-09-11(225天)",
+      "storage": "output/maimai_topic_company_impressions_5000",
+      "url": "https://maimai.cn/community/topic-detail/12dLH8oC3/crtime",
+      "note": "14515条。2026-09-11 早期窗口批跑(2025-01-01~2026-04-20): 6390→10753(+4363), 滚动13轮触底(条目计数9915) → **crtime feed 可见上限≈1万条**, 更早(2025-01~09及以前)需另法"
+    },
+    "JFvwxmvD": {
+      "name": "职级薪资大揭秘",
+      "posts": 11513,
+      "caught": 9894,
+      "coverage": "2025-10-01~2026-09-12(347天)",
+      "storage": "output/maimai_topic_salaryrank",
+      "url": "https://maimai.cn/community/topic-detail/JFvwxmvD/crtime",
+      "note": "11513条。2026-09-11 2025窗口批跑: 7759→9894(+2135), 滚动18/20轮触底(条目计数9962) → **第三个撞 feed 可见上限≈1万** 的专题。更早(2025-01~09)需另法"
+    },
+    "zfe4YoeG": {
+      "name": "爆料各司工时强度",
+      "posts": 5967,
+      "caught": 5761,
+      "coverage": "2025-10-01~2026-09-30(364天)",
+      "storage": "output/maimai_topic_worktime",
+      "url": "https://maimai.cn/community/topic-detail/zfe4YoeG/crtime",
+      "note": "5967条。已抓5761(96.5%,近满),唯一结构化工时字段(公司/部门/上下班时间/摸鱼状态),横向工时对比最佳渠道"
+    }
+  },
+  "channels": {
+    "recommended": {
+      "name": "推荐",
+      "url": "https://maimai.cn/community/home/recommended",
+      "value": "高(用户指定重点)",
+      "target": 1000,
+      "storage": "output/maimai_recommended_comments",
+      "status": "已抓(带评论, 目标150帖)",
+      "comment": true
+    },
+    "gossip": {
+      "name": "职言",
+      "url": "https://maimai.cn/community/home/gossip",
+      "value": "高(用户指定重点)",
+      "target": 1000,
+      "storage": "output/maimai_gossip",
+      "status": "已抓978条,不足1000 → 需重探能否达1000+",
+      "comment": true
+    },
+    "dji_search": {
+      "name": "大疆搜索(职言交流·综合排序)",
+      "url": "https://maimai.cn/web/search_center?type=gossip&query=%E5%A4%A7%E7%96%86&highlight=true",
+      "value": "高(用户2026-09-13指定新增)",
+      "status": "已抓300帖/3796评论(2026-09-13)；列表共309卡,重复率0.3%；覆盖 2025-10-27~2026-09-13",
+      "storage": "output/maimai_dji_search",
+      "comment": true,
+      "note": "用户提供 URL，只直接访问（严格广告0条；内推/猎头类招聘噪音59/300≈20%）。结构：.gossipSort 三档(综合/时间/热门，默认综合highlight)；列表 .searchList ul.list-group>li.list-group-item；卡片点击开新标签页 /community/gossip-detail/<gid>?egid=..（无 egid 直接访问会 404）；详情页评论 SSR。抓取脚本=工作区 harvest_search_dji.js（点击→popup→抓评论→立即close，防标签堆积）。列表为无限滚动，每滚一格+10 卡。分析产物=output/maimai_dji_search/findings.md。分析目标：大疆强度/是否推荐/吐槽/夸奖/各职级薪资/友商对比，过滤广告。"
+    }
+  },
+  "specialTopics": {
+    "topic:offer": {
+      "name": "offer选择专题",
+      "url": "https://maimai.cn/web/search_center?type=gossip&query=offer&highlight=true",
+      "value": "高(用户指定新增)",
+      "status": "待探(需 probe 结构)",
+      "target": "帖子+评论: 识别帖中几个offer + 评论区对各offer正负面反馈",
+      "storage": "output/maimai_offer(待建)",
+      "comment": true,
+      "note": "【用户2026-09-12提供】后续只直接访问此 URL，绝不自行搜索。"
+    }
+  },
+  "sources": [
+    {
+      "name": "已并入 topics/channels 两节，详见上",
+      "count": 2
+    }
+  ],
+  "pitfalls": {
+    "toolCannotLaunchBrowser": "从工具启浏览器必死(Job Object回收)；浏览器只能用户双击启动。CDP 需 9222，需用户带端口启动；当前方案=持久化 profile，无需 CDP。",
+    "cdpFlagDropped": "lib/crawl.js normalizeTask 曾漏传 cdpUrl/profileDir（已修 2026-09-11）。",
+    "topicTagClick": "feed 内话题标签新标签页打开，必须 ctx.waitForEvent('page') 捕获 popup 才拿得到 topic-detail URL。",
+    "parserIdentityOptional": "parse_maimai.js REVIEW_RE 曾强制要求 ·身份 且结尾必须分享 → 30% 有效评价被丢弃（已修，2026-09-12）。",
+    "appBoundCookies": "主 Chrome cookie App-Bound 加密，离线读取不可行 → 复用登录态只能 CDP 挂载或独立持久化 profile。"
+  }
+}

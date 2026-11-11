@@ -1,0 +1,51 @@
+{
+  "host": "nowcoder.com",
+  "updatedAt": "2026-11-10T12:00:00.000Z",
+  "source": "manual:免登录公开API",
+  "notes": "牛客是唯一免登录、无风控的渠道，优先用。公开 API，必须带 x-requested-with: XMLHttpRequest 和 Referer。搜索只吃 POST /pc/search。站点自报数常虚高（携程自报 703，实际 total 113）。",
+  "riskLevel": "none",
+  "antiBot": {
+    "headless": true,
+    "throttle": {
+      "evalPageMs": 280,
+      "commentPageMs": 260,
+      "postMs": 200
+    }
+  },
+  "login": {
+    "successIndicators": [],
+    "pageIndicators": []
+  },
+  "extract": {
+    "module": "",
+    "containerSelectors": [],
+    "fields": [],
+    "pages": [],
+    "limit": 500
+  },
+  "interaction": { "tabs": [] },
+  "pagination": { "enabled": false, "buttonText": "" },
+  "scroll": { "rounds": 10 },
+  "websiteRules": {
+    "baseUrl": "https://gw-c.nowcoder.com/api/sparta",
+    "searchEndpoint": "POST /pc/search  body:{query,type:'all',page:1}",
+    "evalTagEndpoint": "GET /experience/company/evaluation/tag?id=<companyId>",
+    "evalListEndpoint": "GET /experience/company/evaluation/list?companyId=<id>&pageNo=<n>[&tagId=<tid>]",
+    "commentEndpoint": "GET /comment/list-by-page?entityId=<cid>&entityType=250&order=2&pageNo=<n>",
+    "requiredHeaders": ["x-requested-with: XMLHttpRequest", "Referer: https://www.nowcoder.com/"],
+    "countRule": "以 data.total 为准，不以 tag.count 为准"
+  },
+  "knownIssues": [
+    {
+      "date": "2026-11-09",
+      "issue": "站点自报 703 条评价，实际 total 仅 113 条，去重后 91 条",
+      "rootCause": "自报数含各维度 tag 的重复计数",
+      "fix": "以 data.total 为准；报告里两个数都写"
+    },
+    {
+      "date": "2026-11-10",
+      "issue": "搜「携程金融」等无独立公司实体，rc_type===205 结果为 0",
+      "fix": "金融线只能靠评价正文关键词过滤，命中率极低"
+    }
+  ]
+}
