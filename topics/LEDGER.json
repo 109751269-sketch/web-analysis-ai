@@ -32,6 +32,7 @@
       "title": "脉脉职场评价与评论采集",
       "status": "running",
       "doc": "topics/maimai-workplace/TOPIC.md",
+      "findings": "topics/maimai-workplace/FINDINGS.md",
       "dataDirs": [
         "F:\\despseekharness\\crawler\\output\\maimai_topic_baoliao",
         "F:\\despseekharness\\crawler\\output\\maimai_topic_company_impressions_5000",
@@ -42,7 +43,16 @@
       ],
       "dataSize": "66M",
       "runs": ["2026-09-14", "2026-10", "2026-11"],
-      "stats": { "totalPosts": 42298, "topics": 4 },
+      "stats": {
+        "totalPosts": 42298,
+        "topics": 4,
+        "worktimeValid": 4658,
+        "worktimeMedianH": 11,
+        "worktimeOver12Pct": 30.8,
+        "salaryValid": 9436,
+        "salaryMedianW": 42,
+        "anx": "F:\\despseekharness\\crawler\\output\\_analysis"
+      },
       "next": [
         "产出「公司 x 职级 x 薪资」交叉表",
         "refill:true 补高低覆盖评论篇目",
@@ -73,12 +83,20 @@
       "title": "公司评价与薪资（牛客 + 职友集）",
       "status": "blocked",
       "doc": "topics/company-reviews/TOPIC.md",
+      "findings": "topics/company-reviews/FINDINGS.md",
       "dataDirs": [
         "F:\\despseekharness\\crawler\\output\\nowcoder",
         "F:\\despseekharness\\crawler\\output\\jobui"
       ],
       "dataSize": "45M",
-      "stats": { "companies": 15, "reviews": 7001, "jobuiIds": 17 },
+      "stats": {
+        "companies": 15,
+        "reviews": 7001,
+        "jobuiIds": 17,
+        "coverageMaxPct": 80.5,
+        "coverageTypicalPct": 13,
+        "tagsCaveat": "站点全站自报计数，非实抓样本统计"
+      },
       "next": [
         "TODO-1 职友集剩余公司 ID（>=25s 间隔）",
         "TODO-2 牛客裁员正则去污染",
@@ -91,9 +109,10 @@
       "title": "小红书关键词搜索与详情",
       "status": "running",
       "doc": "topics/xhs/TOPIC.md",
+      "findings": "topics/xhs/FINDINGS.md",
       "dataDirs": ["F:\\despseekharness\\crawler\\output\\xhs"],
       "dataSize": "1.3M",
-      "stats": { "notes": 1995, "details": 48, "coveragePct": 2.4 },
+      "stats": { "notes": 1995, "details": 48, "coveragePct": 2.4, "financeNotes": 61, "financeNegTitlePct": 19.7 },
       "next": [
         "TODO-5 按分诊规则补抓详情，覆盖率提到可用水平",
         "每批检查 RiskControlError，触发即停"

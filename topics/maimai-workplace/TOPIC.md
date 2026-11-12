@@ -23,6 +23,8 @@
 
 已产出报告（工作区根目录）：`bigtech_compare.html`、`net_emotion_compare.html`、`daji_report.html`、`report_bigtech_vs_dji.md`。
 
+工时/薪资统计结论见 **[FINDINGS.md](FINDINGS.md)**（2026-11-12）；复跑：`node topics/analyze_topics.js`，产物落 `output/_analysis/`。
+
 ## 三、关键结论（勿重复踩）
 
 - 脉脉频道页卡片是 `div[role=button]` **无 href**，评论采集必须用 `detailEntry: auto`（点卡片进详情），不能只靠 `_link`

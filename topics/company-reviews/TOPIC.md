@@ -18,6 +18,8 @@
 
 已产出：`report_bigtech_vs_dji.md`、`rank_v3` 系列报告。
 
+牛客标签与覆盖率分析见 **[FINDINGS.md](FINDINGS.md)**（2026-11-12）；复跑：`node topics/analyze_topics.js`。
+
 ## 三、关键结论（勿重复踩）
 
 - **牛客优先**：公开 HTTP API 免登录无风控，比脉脉省事

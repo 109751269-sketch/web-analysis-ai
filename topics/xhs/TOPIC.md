@@ -15,6 +15,8 @@
 | 详情 | 48 条（覆盖率 2.4%） | `output/xhs/details/` |
 | 携程金融线专项 | 61 篇（32 篇有正文 / 146 条评论） | `output/xhs/_finance_*.json` |
 
+标题层分析与口径限制见 **[FINDINGS.md](FINDINGS.md)**（2026-11-12）。
+
 ## 三、关键结论（勿重复踩）
 
 - **headless 直接进验证码页**，必须 `headless: false`
