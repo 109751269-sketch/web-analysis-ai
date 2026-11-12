@@ -427,7 +427,7 @@ class RiskControlError extends Error {
 - `< 70%` 且 `stats.lowCoverage > 0` → **不许静默交付**：先 `expandIdleRounds: 4~5` 重跑一轮；仍不够就按 **B 档** 用 bsk 补那几篇，并在结论里标注"哪些帖评论不全"。
 - `claimCount = 0`（页面没给分母）→ 不算异常，但要人工抽查 2~3 篇条数，别把"没分母"当成"没漏"。
 
-**历史覆盖基线（避免把正常当异常）**：`EXPERIENCE.md §十七` 实测大帖（80/49 评论）在懒加载 + 楼中楼限制下通常只有 **40%~60%**，小帖接近 100%。所以 70% 阈值是"小帖全绿、大帖报警"的分界，不是要求大帖也 100%。
+**历史覆盖基线（避免把正常当异常）**：`EXPERIENCE.md §二十八` 实测大帖（80/49 评论）在懒加载 + 楼中楼限制下通常只有 **40%~60%**，小帖接近 100%。所以 70% 阈值是"小帖全绿、大帖报警"的分界，不是要求大帖也 100%。
 
 ### Phase 2.5 — 日期窗口 / 断点续抓（按时间范围抓取时必做，2026-09-10 起）
 
@@ -490,7 +490,7 @@ class RiskControlError extends Error {
 
 ### Phase 3.5 — 新站点探测（仅新站/未知结构）
 
-**顺序：先试 API，再试 DOM。** 站点有公开 JSON API 时抓 API 比渲染快 10 倍以上，且不怕改版（2026-11-09 牛客实测，详见 `EXPERIENCE.md §二十三`）。
+**顺序：先试 API，再试 DOM。** 站点有公开 JSON API 时抓 API 比渲染快 10 倍以上，且不怕改版（2026-11-09 牛客实测，详见 `EXPERIENCE.md §三十二`）。
 
 **① API 优先（推荐先做，1 次浏览器）**
 
@@ -782,7 +782,7 @@ output/<任务名>/
 | # | 问题 | 位置 | 修复 |
 |---|---|---|---|
 | **F2b** | **展开控件在 open shadow root 里时永远点不到**：`clickRound` 用 `document.querySelectorAll` 收集候选，进不去影子树 → 候选恒 0 → 一轮「DOM 未增长」就判定收敛，**少抓评论且零告警**（现代 Web Components 站点常见） | `lib/comments.js` `clickRound` | ① 候选收集改为递归 `walk(document)`，穿透 open shadowRoot（closed 树从页面上下文取不到，属站点限制不绕过）；② 「最内层」判定补 `containsDeep`（`contains` 不跨影子边界，否则宿主与影子按钮会双双被当叶子）；③ 点击校验补 `ev.composedPath()`（影子内点击在 document 上被重定向成宿主，只比 `ev.target` 会误判"未送达"）；④ 上一轮标记清理改为遍历 `all`（原用 `document.querySelectorAll('[data-dsh-…]')`，影子内的标记清不掉 → 无限加载按钮只生效一次） |
-| **F2c** | **评论覆盖率不可验证**：日志只报「评论 N 条」，没有分母 → `EXPERIENCE §十七` 已知大帖只拿 40%~60%，但交付时看不出来，属于静默失真 | `lib/comments.js` `scrapeComments` / `harvestComments`；`lib/pipeline.js` 汇总行 | `scrapeComments` 抽 `stats.claimCount`（页面声称总数，只认整段就是 `N 条评论`/`评论 N` 的短元素，正文里的「这 3 条评论」不算）；`harvestComments` 逐篇打印「页面声称 N / 覆盖 X%」，`< 70%` 且声称 ≥5 时打 ⚠ 并计 `stats.lowCoverage`；收尾汇总 `coveragePct`。**不改默认行为**：`claimCount=0` 时输出与旧版完全一致 |
+| **F2c** | **评论覆盖率不可验证**：日志只报「评论 N 条」，没有分母 → `EXPERIENCE §二十八` 已知大帖只拿 40%~60%，但交付时看不出来，属于静默失真 | `lib/comments.js` `scrapeComments` / `harvestComments`；`lib/pipeline.js` 汇总行 | `scrapeComments` 抽 `stats.claimCount`（页面声称总数，只认整段就是 `N 条评论`/`评论 N` 的短元素，正文里的「这 3 条评论」不算）；`harvestComments` 逐篇打印「页面声称 N / 覆盖 X%」，`< 70%` 且声称 ≥5 时打 ⚠ 并计 `stats.lowCoverage`；收尾汇总 `coveragePct`。**不改默认行为**：`claimCount=0` 时输出与旧版完全一致 |
 | **F2d** | 无 `_link` 时的提示仍指向"工作区专用脚本"，与 §0.3 的默认两段式不一致 | `lib/pipeline.js` | 改为指向 Phase 3.4.1 三档路径：a) 有 href → 补 `containerSelectors` 重试；b) 只能点卡片 → auto 档自动兜底 |
 
 **第五批修复（2026-11-09 晚，P0/P1/P2：让"有结论但落不了地"的三处闭环）**

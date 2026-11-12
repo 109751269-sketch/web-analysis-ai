@@ -3,10 +3,14 @@ node_modules/
 package-lock.json
 
 # 本地运行产物
-output/
+/output/
 *.log
 
+# 专题原始数据（体积大，留在工作区 F:\despseekharness\crawler；topics/ 只提交档案与台账）
+topics/*/data/
+topics/*/raw/
+
 # 2026-10-25 补（B6）：登录凭证与浏览器 profile（内含 Cookies 库）——真凭证，绝不外发/入库
-# 本技能在 ~/.agents/skills 下是唯一实体，.claude / .workbuddy 下同名目录均为指向此处的 Junction
+# 本技能在 ~/.agents/skills 下是唯一实体，.claude / .workbuddy 下同名目录均为指向此处的符号链接
 cookies/
 profiles/

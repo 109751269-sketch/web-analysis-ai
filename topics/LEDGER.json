@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "updatedAt": "2026-11-12",
+  "note": "专题状态台账。开工前先读这里判断做到哪一步、从哪继续。数据大文件不进 git，只登记路径与体积。",
+  "topics": [
+    {
+      "slug": "btc-analyst",
+      "title": "推特 BTC 博主预测能力评测",
+      "status": "done",
+      "doc": "topics/btc-analyst/README.md",
+      "findings": "topics/btc-analyst/FINDINGS.md",
+      "dataDirs": ["F:\\despseekharness\\crawler\\topics-data\\btc-analyst"],
+      "dataSize": "1.6M",
+      "runs": ["2026-11-11"],
+      "latestRun": "2026-11-11",
+      "stats": { "accounts": 89, "predictions": 349, "stablePos": 3, "stableNeg": 11, "unstable": 39 },
+      "reproduce": [
+        "cd C:\\Users\\sun\\.agents\\skills\\web-analysis-ai\\topics\\btc-analyst",
+        "node audit_preds.js",
+        "node score_final.js",
+        "node sim_trade.js",
+        "node ledger.js",
+        "node build_html.js"
+      ],
+      "next": [
+        "新增一期：抓新推文 -> freeze_digests.js -> 子代理按 PRED_SPEC.md 抽取 -> audit 必须 0 未命中",
+        "把 x-recent-opinion 的日更候选池接进来做增量评测"
+      ]
+    },
+    {
+      "slug": "maimai-workplace",
+      "title": "脉脉职场评价与评论采集",
+      "status": "running",
+      "doc": "topics/maimai-workplace/TOPIC.md",
+      "dataDirs": [
+        "F:\\despseekharness\\crawler\\output\\maimai_topic_baoliao",
+        "F:\\despseekharness\\crawler\\output\\maimai_topic_company_impressions_5000",
+        "F:\\despseekharness\\crawler\\output\\maimai_topic_salaryrank",
+        "F:\\despseekharness\\crawler\\output\\maimai_topic_worktime",
+        "F:\\despseekharness\\crawler\\output\\maimai_gossip_comments",
+        "F:\\despseekharness\\crawler\\output\\maimai_recommended_comments"
+      ],
+      "dataSize": "66M",
+      "runs": ["2026-09-14", "2026-10", "2026-11"],
+      "stats": { "totalPosts": 42298, "topics": 4 },
+      "next": [
+        "产出「公司 x 职级 x 薪资」交叉表",
+        "refill:true 补高低覆盖评论篇目",
+        "新增专题先在 output/ 建目录，跑完在此登记"
+      ]
+    },
+    {
+      "slug": "x-recent-opinion",
+      "title": "推特近期帖子找观点（24h 时间线）",
+      "status": "running",
+      "doc": "topics/x-recent-opinion/TOPIC.md",
+      "dataDirs": [
+        "F:\\despseekharness\\crawler\\output\\x_24h_20261109",
+        "F:\\despseekharness\\crawler\\output\\x_recent_500",
+        "F:\\despseekharness\\crawler\\output\\x_btc_2026",
+        "F:\\despseekharness\\crawler\\output\\x_btc_20261112"
+      ],
+      "dataSize": "34M",
+      "runs": ["2026-10-31", "2026-11-01", "2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12"],
+      "stats": { "latestPosts": 600, "recent500": 505 },
+      "next": [
+        "每期简报的「观点-账号」结构化，供 btc-analyst 消费",
+        "日更流程固化成脚本"
+      ]
+    },
+    {
+      "slug": "company-reviews",
+      "title": "公司评价与薪资（牛客 + 职友集）",
+      "status": "blocked",
+      "doc": "topics/company-reviews/TOPIC.md",
+      "dataDirs": [
+        "F:\\despseekharness\\crawler\\output\\nowcoder",
+        "F:\\despseekharness\\crawler\\output\\jobui"
+      ],
+      "dataSize": "45M",
+      "stats": { "companies": 15, "reviews": 7001, "jobuiIds": 17 },
+      "next": [
+        "TODO-1 职友集剩余公司 ID（>=25s 间隔）",
+        "TODO-2 牛客裁员正则去污染",
+        "TODO-3 growthScore 改走岗位细分薪资",
+        "TODO-6 岗位细分薪资批量采集"
+      ]
+    },
+    {
+      "slug": "xhs",
+      "title": "小红书关键词搜索与详情",
+      "status": "running",
+      "doc": "topics/xhs/TOPIC.md",
+      "dataDirs": ["F:\\despseekharness\\crawler\\output\\xhs"],
+      "dataSize": "1.3M",
+      "stats": { "notes": 1995, "details": 48, "coveragePct": 2.4 },
+      "next": [
+        "TODO-5 按分诊规则补抓详情，覆盖率提到可用水平",
+        "每批检查 RiskControlError，触发即停"
+      ]
+    }
+  ]
+}

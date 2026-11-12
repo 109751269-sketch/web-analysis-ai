@@ -49,7 +49,7 @@ Agent 主导的网页抓取与分析工作流。引擎（Node + Playwright）自
 
 **API 优先原则**
 
-能走 HTTP API 就不开浏览器。牛客全程公开 API，速度快一个数量级、零风控。如何发现 API、需要带哪些 header，见 `EXPERIENCE.md` §二十三。
+能走 HTTP API 就不开浏览器。牛客全程公开 API，速度快一个数量级、零风控。如何发现 API、需要带哪些 header，见 `EXPERIENCE.md` §三十二。
 
 **有头是默认**
 
@@ -99,7 +99,7 @@ headless Chrome 缺 GPU 渲染、`navigator.webdriver` 为 true，是多数站�
 
 ### 2.3 已沉淀的经验
 
-`EXPERIENCE.md` 共 752 行、33 节（编号到二十四，中间有重复编号），覆盖：
+`EXPERIENCE.md` 共 753 行、33 节（编号连续到三十三），覆盖：
 
 - 反爬与安全验证的触发条件与规避方式
 - 脉脉 RSC 流拦截方案（2026-11 改版后 DOM 里没有帖子链接，只能拦截响应体）
@@ -120,6 +120,21 @@ headless Chrome 缺 GPU 渲染、`navigator.webdriver` 为 true，是多数站�
 | 知乎 / 微博 | 反爬策略频繁变动，维护成本高 | 脉脉 + 小红书 |
 
 完整的渠道台账（含独有数据、优先级、决策树）见 `sites/README.md`。
+
+### 2.5 专题档案（`topics/`）
+
+技能做过的每类分析都是一个**独立专题**，互不干扰，可随时接着上次进度继续跑：
+
+| 专题 | 内容 | 状态 |
+|---|---|---|
+| `topics/btc-analyst/` | 推特 87 个博主 BTC 预测能力评测（含脚本、结论、4 口径方法论） | 🟢 一期完成，可复跑 |
+| `topics/maimai-workplace/` | 脉脉四专题帖 + 评论，职场/公司评价 | 🟢 已采 42,298 条 |
+| `topics/x-recent-opinion/` | 推特近 24h 帖子找市场观点，日更简报 | 🟢 多期已采 |
+| `topics/company-reviews/` | 牛客 15 家 + 职友集薪资评价 | 🟡 口径待修 |
+| `topics/xhs/` | 小红书关键词搜索与详情 | 🟡 详情覆盖率低 |
+
+- **入口**：先读 [`topics/INDEX.md`](topics/INDEX.md)（索引）与 [`topics/LEDGER.json`](topics/LEDGER.json)（进度台账：做到哪、数据在哪、下一步）。
+- **数据**：原始数据不进仓库，留在工作区，路径登记在台账里。
 
 ---
 
@@ -222,8 +237,18 @@ web-analysis-ai/
 ├── sites/                # 站点分册（<host>.md）+ 全渠道台账
 ├── references/           # Cookie 指南、X 时间线教训
 ├── test/                 # 自检脚本与 fixture
-└── tools/                # CDP 启动脚本
+├── tools/                # CDP 启动脚本
+└── topics/               # 专题档案（独立分支，互不干扰）
+    ├── INDEX.md          # 专题索引（开工前先读）
+    ├── LEDGER.json       # 专题状态台账（进度/数据路径/下一步）
+    ├── btc-analyst/      # 推特博主预测能力评测（脚本 + 结论）
+    ├── maimai-workplace/ # 脉脉职场评价
+    ├── x-recent-opinion/ # 推特近期观点
+    ├── company-reviews/  # 牛客 + 职友集公司评价
+    └── xhs/              # 小红书
 ```
+
+**专题数据不进仓库**：`topics/<slug>/` 只存档案（目标、流程、脚本、结论、状态），原始数据留在工作区（如 `F:\despseekharness\crawler\output\`、`crawler\topics-data\`），路径登记在 `topics/LEDGER.json`。这样技能仓库保持轻量、可跨机器继承分析与经验，同时不搬 200MB+ 原始数据。
 
 ---
 
