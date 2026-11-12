@@ -99,7 +99,7 @@ headless Chrome 缺 GPU 渲染、`navigator.webdriver` 为 true，是多数站�
 
 ### 2.3 已沉淀的经验
 
-`EXPERIENCE.md` 共 753 行、33 节（编号连续到三十三），覆盖：
+`EXPERIENCE.md` 共 803 行、34 节（编号连续到三十四），覆盖：
 
 - 反爬与安全验证的触发条件与规避方式
 - 脉脉 RSC 流拦截方案（2026-11 改版后 DOM 里没有帖子链接，只能拦截响应体）

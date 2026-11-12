@@ -750,3 +750,53 @@ for (let i=0;i<5;i++){ await page.mouse.wheel(0,3000); await page.waitForTimeout
 小红书首轮 33/47 篇正文为空，我一度怀疑选择器失效。真因是**那些页面其实是验证码页**。
 
 **下次自检**：正文为空时，先看 `page.url()` 是否含 `website-login/captcha`、搜索 API 状态码是否 461，再怀疑选择器。
+
+---
+
+## 三十四、Windows 本机操作三坑（2026-11-12，技能仓库化时实测）
+
+### 34.1 技能内目录 `mv` 报 Device or resource busy
+
+**现象**：`mv analyses/btc-analyst topics/btc-analyst` 在任意 cwd 下都报 `Device or resource busy`，即使没有终端 cd 在里面。
+
+**根因**：`.claude/skills/web-analysis-ai` 是符号链接，且有 node.exe / chrome.exe 进程持有该目录下的文件句柄（本机常驻多个 node 进程）。Windows 不允许移动被持有的目录。
+
+**对策**：改用 `cp -r` 复制 → 校验文件数一致 → `rm -rf` 原目录。不要反复重试 `mv`。
+
+**验证**：`find 新目录 -type f | wc -l` 与源目录一致，再删源。
+
+### 34.2 git 走 HTTPS 报 Connection was reset / 443 超时
+
+**现象**：`git fetch/push` 报 `Recv failure: Connection was reset` 或 `Failed to connect to github.com port 443 after 21094 ms`，但同一时刻 `curl https://github.com/` 返回 200、`gh api user` 正常。
+
+**根因**：**HTTP/2 连接被中间设备重置**。git 默认协商 HTTP/2，curl 走 HTTP/1.1 所以不受影响。
+
+**对策**：仓库级固定协议版本，一次解决：
+```bash
+git config http.version HTTP/1.1
+```
+之后 fetch/push 全部正常，无需代理。
+
+**判断要点**：curl 通但 git 不通 → 先怀疑 HTTP/2，不要浪费时间查代理/凭证/DNS。
+
+### 34.3 含 shell 变量的删除命令被内置安全校验拦截
+
+**现象**：`S=/path; mv "$S/analyses/x" ...` 这类含变量的复合命令被 Claude Code 内置安全检查拒绝，报 "Permission for this command was denied by a built-in Claude Code safety check"，理由是变量未展开时可能退化为 `rm -rf /`。
+
+**对策**：分步执行，每次一个操作，路径写字面绝对路径不使用变量。不要试图拆分绕过（同一检查仍会命中）。
+
+**边界**：这条限制只影响「删除/移动」类危险命令，普通读写和 `node` 执行不受影响。
+
+### 34.4 Chromium profile 膨胀 95% 是缓存
+
+**现象**：`profiles/` 三个目录合计 1.1 GB（x.com 599M / maimai.cn 436M / unified 69M）。
+
+**根因**：持久化 profile 目录（`chromium.launchPersistentContext` 的 `userDataDir`）是完整的 Chromium 用户数据目录，**Cache / Code Cache / Service Worker 会随每次运行无限增长**。真登录态只在 `Default/Network/Cookies`（约 28KB）+ `Local Storage` / `IndexedDB`。
+
+**可安全删除（纯缓存）**：`Default/Cache`、`Default/Code Cache`、`Default/Service Worker`、`GPUCache`、`GrShaderCache`、`ShaderCache`、`DawnGraphGPUCache`、`DawnWebGPUCache`、`component_crx_cache`、`optimization_guide_model_store`、`WasmTtsEngine`、`CertificateRevocation`、`BrowserMetrics*`、`segmentation_platform`。
+
+**必须保留**：`Default/Network/`、`Default/Local Storage/`、`Default/IndexedDB/`、`Default/Storage/`、`Default/Preferences`、`Default/Login Data`。
+
+**前提**：删之前先关掉所有 chrome.exe（本机常有 Playwright 残留进程）。删完重跑一次采集验证登录态仍在。
+
+**建议**：清理后约可回收 900MB。后续可加定期清理，但**必须先确认无 chrome 进程占用**。
