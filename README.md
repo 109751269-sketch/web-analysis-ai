@@ -99,7 +99,7 @@ headless Chrome 缺 GPU 渲染、`navigator.webdriver` 为 true，是多数站�
 
 ### 2.3 已沉淀的经验
 
-`EXPERIENCE.md` 共 803 行、34 节（编号连续到三十四），覆盖：
+`EXPERIENCE.md` 共 846 行、35 节（编号连续到三十五），覆盖：
 
 - 反爬与安全验证的触发条件与规避方式
 - 脉脉 RSC 流拦截方案（2026-11 改版后 DOM 里没有帖子链接，只能拦截响应体）
@@ -216,7 +216,7 @@ npm install        # playwright 1.62.1
 ```
 web-analysis-ai/
 ├── SKILL.md              # 工作流主体：阶段、裁决表、站点专项
-├── EXPERIENCE.md         # 踩坑经验与成功模式（24 个专题）
+├── EXPERIENCE.md         # 踩坑经验与成功模式（35 节）
 ├── TODO.md               # 待办清单（开工前必读，做完即删）
 ├── README.md             # 本文档
 ├── lib/
