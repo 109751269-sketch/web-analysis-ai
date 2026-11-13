@@ -10,7 +10,7 @@
 
 | slug | 专题 | 状态 | 数据目录（工作区） | 档案 |
 |---|---|---|---|---|
-| `btc-analyst` | 推特 BTC 博主预测能力评测 | 🟢 已完成一期，可复跑 | `topics-data/btc-analyst/` | [TOPIC.md](btc-analyst/README.md) |
+| `btc-analyst` | 推特 BTC 博主预测能力评测（v4 大周期口径） | 🟢 月度快照自动出榜 | `F:/despseekharness/crawler/` | [README](btc-analyst/README.md) · [结论](btc-analyst/FINDINGS.md) · [口径](btc-analyst/SCORING.md) |
 | `maimai-workplace` | 脉脉抓帖+评论、职场/公司评价 | 🟢 四个专题已采，分析待做 | `output/maimai_topic_*`、`output/maimai_*_comments/` | [TOPIC.md](maimai-workplace/TOPIC.md) |
 | `x-recent-opinion` | 推特近期帖子找观点（24h 时间线） | 🟢 多轮已采，观点聚合待做 | `output/x_24h_*`、`output/x_recent_500/` | [TOPIC.md](x-recent-opinion/TOPIC.md) |
 | `company-reviews` | 牛客 + 职友集公司评价与薪资 | 🟡 15 家已采，若干口径待修 | `output/nowcoder/`、`output/jobui/` | [TOPIC.md](company-reviews/TOPIC.md) |

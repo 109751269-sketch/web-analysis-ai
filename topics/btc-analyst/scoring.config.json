@@ -1,0 +1,44 @@
+{
+  "_comment": "02 专题评分口径单一来源。改口径只改这里，score_periodic.js 只负责实现。任何改动必须在 02 页面「口径版本与修订记录」里升版本号。",
+  "version": "v4",
+  "updatedAt": "2026-11-13",
+  "judge": {
+    "horizonDays": { "weeks": 30, "months": 60, "quarters": 90 },
+    "directionThreshold": 0.1,
+    "note": "大周期用「终点收盘方向」判定：months=60 天、quarters=90 天后收盘涨跌 ≥10% 才算兑现，不看窗口内是否触及。weeks 用短期口径（90 天内触及 ±8%），仅作辅助。",
+    "short": { "windowDays": 90, "touchThreshold": 0.08 }
+  },
+  "baseline": {
+    "neighborDays": 45,
+    "note": "同日 ±45 天、同方向、同周期的盲猜命中率，用于扣除趋势红利"
+  },
+  "weights": {
+    "cycle": 60,
+    "node": 20,
+    "short": 8,
+    "shortCap": 5,
+    "unstablePenalty": 5,
+    "note": "大周期优先：60 / 20 / 8（短期上限只算 5 分）/ 口径不稳定 −5"
+  },
+  "gate": {
+    "minSettledCycle": 8,
+    "minSpanDays": 60,
+    "observeMinSettled": 3,
+    "observeMinSpanDays": 30,
+    "note": "达标入正榜；3~7 条进观察榜（标「初」，不作结论）；不足 3 条只记「样本不足」"
+  },
+  "tierCut": { "A": 45, "B": 25, "C": 10 },
+  "nodes": [
+    { "key": "2月大底 6W", "date": "2026-02-06", "price": 60000, "type": "bottom" },
+    { "key": "5月阶段顶 8W2", "date": "2026-05-06", "price": 82850, "type": "top" },
+    { "key": "7月大底 5W7", "date": "2026-07-01", "price": 57800, "type": "bottom" },
+    { "key": "9月阶段顶 8W7", "date": "2026-09-21", "price": 87396, "type": "top" }
+  ],
+  "nodeRule": {
+    "leadDaysMin": 7,
+    "leadDaysMax": 90,
+    "priceToleranceFull": 0.03,
+    "priceTolerancePartial": 0.08,
+    "note": "拐点前 7~90 天给出同方向；点位误差 ±3% 满分、±8% 给 0.7、只给方向 0.5；拐点当天及之后 = 事后确认，不计分"
+  }
+}

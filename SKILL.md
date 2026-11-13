@@ -643,6 +643,54 @@ output/<任务名>/
 └── findings.md     # 分析结论（Phase 6/7 时由 agent 写，可选）
 ```
 
+### Phase 7.1 — HTML 报告里推特博主名必须可点击（**用户 2026-11-13 定的硬性规范，交付前必查**）
+
+> 适用范围：**任何** HTML 交付物（简报 / 复盘 / 榜单 / 看板 / 时间线）中只要出现推特（X）博主的观点、引述、观点归属、榜单行、表格单元格、KPI 注释——**提到博主名字就必须能点进他的 X 主页**。markdown 版同步处理。
+
+规则：
+
+1. **链接格式**：`https://x.com/<handle>`，handle 去掉开头的 `@`，保留原大小写（X 不区分大小写，显示按原文）。
+2. **新标签打开**：`target="_blank" rel="noopener noreferrer"`，不要打断用户看报告。
+3. **样式不许破坏排版**：用 `color:inherit` + 虚线下划线，**不要**默认蓝色实线链接把表格/正文打乱；hover 才变主题色实线。
+4. **有具体推文时优先链推文**：引用某条原帖 → `https://x.com/<handle>/status/<id>`；只提人（榜单、观点归属、对比表）→ 主页。
+5. **表格里也要链**：博主名是 `<td>` 内容时同样处理，注意 `white-space:nowrap` 防止换行错位。
+6. **不要误链**：Telegram / 微博 / Substack / YouTube / 新闻站点不是 X，禁止套 `x.com` 链接；handle 不确定时**宁可不加链接，也不要猜**（错误跳转比不可点更糟）。
+7. **纯文本降级**：`findings.md` / `.md` 版用 `[@handle](https://x.com/handle)`。
+
+**优先用引擎脚本（勿手写，2026-11-13 已落 `lib/handle-links.js`）**：
+
+```bash
+node lib/handle-links.js output/<任务名>/report.html          # 原地加链接 + 注入样式
+node lib/handle-links.js output/<任务名>/report.html --dry    # 先看能加多少个，不改文件
+```
+
+脚本已处理好的坑（**别自己写正则**）：
+- **`<style>` / `<script>` 整段保护**：否则 CSS 的 `@media` / `@keyframes` 会被当成 handle，替换成 `href="x.com/media"`，直接搞坏响应式样式（2026-11-13 实测踩到并修复）；
+- 内置 at-rule 黑名单（media / keyframes / supports / font-face / import / layer…），正文里提到也不误链；
+- 数字开头（`@2024`）、邮箱（`foo@bar.com`）不匹配；handle 只认「字母或下划线开头、≤15 位」；
+- `<code>@handle</code>` → 链接包住 code（保留等宽外观，仍可点）；
+- 已在 `<a>` 里的文本跳过，**幂等**：重复跑不会嵌套、不会重复插 CSS。
+
+手写时的最小片段（无脚本可用时）：
+
+```html
+<style>
+  a.handle{color:inherit;text-decoration:none;border-bottom:1px dashed currentColor;white-space:nowrap}
+  a.handle:hover{color:var(--accent);border-bottom-style:solid}
+</style>
+<a class="handle" href="https://x.com/handle" target="_blank" rel="noopener noreferrer">@handle</a>
+```
+
+**验收（并入 Phase 8）**：
+
+```js
+const { auditHandles } = require('./lib/handle-links');
+// html 为渲染后的页面内容
+auditHandles(html); // → { hrefs, linkedHandles, mentionedHandles, missing[] }
+```
+
+`missing` 非空 = 有博主名没链上，必须补齐再交付。另可用无头浏览器复核 `document.querySelectorAll('a[href^="https://x.com/"]').length` 与页面博主数是否匹配。
+
 ### Phase 8 — 收尾与沉淀
 
 1. **验收**（大模型）：对照用户需求逐条核对产出（数据量、字段、结论），缺失/不符 → 回到对应 Phase 修复。

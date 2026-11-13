@@ -1,31 +1,44 @@
 {
-  "version": 1,
-  "updatedAt": "2026-11-12",
+  "version": 2,
+  "updatedAt": "2026-11-13",
   "note": "专题状态台账。开工前先读这里判断做到哪一步、从哪继续。数据大文件不进 git，只登记路径与体积。",
   "topics": [
     {
       "slug": "btc-analyst",
       "title": "推特 BTC 博主预测能力评测",
-      "status": "done",
+      "status": "active",
       "doc": "topics/btc-analyst/README.md",
       "findings": "topics/btc-analyst/FINDINGS.md",
-      "dataDirs": ["F:\\despseekharness\\crawler\\topics-data\\btc-analyst"],
-      "dataSize": "1.6M",
-      "runs": ["2026-11-11"],
-      "latestRun": "2026-11-11",
-      "stats": { "accounts": 89, "predictions": 349, "stablePos": 3, "stableNeg": 11, "unstable": 39 },
+      "dataDirs": [
+        "F:/despseekharness/crawler"
+      ],
+      "dataSize": "约 40M（raw 不入库）",
+      "runs": [
+        "2026-11-11",
+        "2026-11-13"
+      ],
+      "latestRun": "2026-11-13",
+      "stats": {
+        "accounts": 96,
+        "predictions": 341,
+        "qualified": 1,
+        "observing": 11,
+        "insufficient": 84,
+        "cycleSettledMedian": 0,
+        "pending": 75
+      },
       "reproduce": [
-        "cd C:\\Users\\sun\\.agents\\skills\\web-analysis-ai\\topics\\btc-analyst",
-        "node audit_preds.js",
-        "node score_final.js",
-        "node sim_trade.js",
-        "node ledger.js",
-        "node build_html.js"
+        "cd C:/Users/sun/.agents/skills/web-analysis-ai/topics/btc-analyst",
+        "node audit_preds.js            # 抽取防编造校验，必须 0 未命中",
+        "node verify_calls.js           # 结算观点台账（到期项）",
+        "node score_periodic.js --asof=YYYY-MM-DD --window=365   # 出能力快照"
       ],
       "next": [
-        "新增一期：抓新推文 -> freeze_digests.js -> 子代理按 PRED_SPEC.md 抽取 -> audit 必须 0 未命中",
-        "把 x-recent-opinion 的日更候选池接进来做增量评测"
-      ]
+        "每月 1 日自动出快照（automation 已建：02 博主能力月度快照）",
+        "持续把每日抓取的观点写入 state/calls_ledger.json，累计 60/90 天后自动可结算",
+        "样本达标账号从 1 个涨上来之后，观察榜才可转正榜"
+      ],
+      "config": "topics/btc-analyst/scoring.config.json"
     },
     {
       "slug": "maimai-workplace",
@@ -42,7 +55,11 @@
         "F:\\despseekharness\\crawler\\output\\maimai_recommended_comments"
       ],
       "dataSize": "66M",
-      "runs": ["2026-09-14", "2026-10", "2026-11"],
+      "runs": [
+        "2026-09-14",
+        "2026-10",
+        "2026-11"
+      ],
       "stats": {
         "totalPosts": 42298,
         "topics": 4,
@@ -71,8 +88,18 @@
         "F:\\despseekharness\\crawler\\output\\x_btc_20261112"
       ],
       "dataSize": "34M",
-      "runs": ["2026-10-31", "2026-11-01", "2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12"],
-      "stats": { "latestPosts": 600, "recent500": 505 },
+      "runs": [
+        "2026-10-31",
+        "2026-11-01",
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12"
+      ],
+      "stats": {
+        "latestPosts": 600,
+        "recent500": 505
+      },
       "next": [
         "每期简报的「观点-账号」结构化，供 btc-analyst 消费",
         "日更流程固化成脚本"
@@ -110,9 +137,17 @@
       "status": "running",
       "doc": "topics/xhs/TOPIC.md",
       "findings": "topics/xhs/FINDINGS.md",
-      "dataDirs": ["F:\\despseekharness\\crawler\\output\\xhs"],
+      "dataDirs": [
+        "F:\\despseekharness\\crawler\\output\\xhs"
+      ],
       "dataSize": "1.3M",
-      "stats": { "notes": 1995, "details": 48, "coveragePct": 2.4, "financeNotes": 61, "financeNegTitlePct": 19.7 },
+      "stats": {
+        "notes": 1995,
+        "details": 48,
+        "coveragePct": 2.4,
+        "financeNotes": 61,
+        "financeNegTitlePct": 19.7
+      },
       "next": [
         "TODO-5 按分诊规则补抓详情，覆盖率提到可用水平",
         "每批检查 RiskControlError，触发即停"

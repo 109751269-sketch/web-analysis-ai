@@ -1,11 +1,13 @@
 {
   "host": "maimai.cn",
-  "updatedAt": "2026-11-09T11:22:50.373Z",
-  "source": "maimai_topic_baoliao",
+  "updatedAt": "2026-11-13T12:58:52.296Z",
+  "source": "maimai_topic_salaryrank",
   "notes": "maimai 反爬：必须有头模式（headless=false 会退回登录页）",
+  "learnedAt": "2026-11-13T12:58:52.296Z",
+  "learnedSamples": 10479,
   "antiBot": {
     "headless": false,
-    "verifyWaitTimeout": 300000,
+    "verifyWaitTimeout": 180000,
     "throttle": {
       "firstScreenMs": 5000,
       "scrollMs": 1800,
@@ -23,7 +25,8 @@
   "extract": {
     "module": "",
     "containerSelectors": [
-      "div.bg-card"
+      "div.bg-card",
+      "div.mt-4.rounded-lg"
     ],
     "incremental": false,
     "detail": null,
@@ -34,14 +37,39 @@
         "group": 1
       },
       {
+        "name": "公司",
+        "regex": "📍公司[:：]\\s*([^\\s👷💼💰]{1,24})",
+        "group": 1
+      },
+      {
+        "name": "岗位",
+        "regex": "👷‍♂️岗位[:：]\\s*([^\\s💼💰]{1,24})",
+        "group": 1
+      },
+      {
+        "name": "职级",
+        "regex": "💼职级[:：]\\s*([^\\s💰]{1,24})",
+        "group": 1
+      },
+      {
+        "name": "薪酬结构",
+        "regex": "💰薪酬结构[:：]\\s*([^\\s💰]{1,40})",
+        "group": 1
+      },
+      {
+        "name": "总年薪",
+        "regex": "💰总年薪[:：]\\s*([^\\s]{1,20})",
+        "group": 1
+      },
+      {
         "name": "正文",
-        "regex": "我来爆个料([\\s\\S]+)",
+        "regex": "([\\s\\S]+)",
         "group": 1,
         "fallback": true
       }
     ],
     "pages": [],
-    "limit": 4000
+    "limit": 600
   },
   "interaction": {
     "tabs": []
@@ -51,9 +79,6 @@
     "buttonText": ""
   },
   "scroll": {
-    "rounds": 400
-  },
-  "learnedAt": "2026-11-10T12:38:35.227Z",
-  "learnedSamples": 0,
-  "riskLevel": "medium"
+    "rounds": 150
+  }
 }
