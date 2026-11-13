@@ -35,6 +35,8 @@ Agent 主导的网页抓取与分析工作流。引擎（Node + Playwright）自
 | `lib/research.js` | 单入口调研：`--company=携程` 一条命令跑完脉脉+牛客+小红书 |
 | `lib/probe.js` | 页面结构探测器，输出候选 tab / 输入框 / 重复结构 + 截图 |
 | `lib/playbook.js` | 站点攻略自动复用：把成功配置与反爬参数存成 `playbooks/<host>.json` |
+| `lib/handle-links.js` | HTML/Markdown 报告里 `@handle` 自动变可点主页链接（幂等，保护 style/script/已有 a/邮箱） |
+| `lib/check-links.js` | 交付前内链自检：相对链接/资源是否存在、目录是否有 index.html、大小写是否一致 |
 | `lib/sites/*.js` | 站点专用采集器（maimai / nowcoder / xiaohongshu / jobui） |
 | `lib/util.js` | 时间戳、读写、HTML 转义、参数解析、数字解析 |
 
