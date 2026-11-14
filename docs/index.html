@@ -25,7 +25,7 @@ ul{margin:8px 0 8px 20px;padding:0;font-size:13.5px}li{margin:5px 0}.foot{color:
 
 <h2>一、渠道矩阵</h2>
 <table><thead><tr><th>渠道</th><th>登录</th><th>取数方式</th><th>风控特征</th><th>状态</th><th>数据量</th></tr></thead><tbody>
-<tr><td><strong>脉脉 maimai.cn</strong></td><td>是</td><td>持久化 profile + RSC 流拦截</td><td>搜索 ≤1 次/30min；频道/专题页不受搜索风控</td><td><span class="pill p-ok">可用</span></td><td>42,558 帖（四大专题）</td></tr><tr><td><strong>牛客 nowcoder.com</strong></td><td>否</td><td>公开 JSON API</td><td>无</td><td><span class="pill p-ok">可用</span></td><td>7,092 条 / 16 家 / 91 评论</td></tr><tr><td><strong>职友集 jobui.com</strong></td><td>否</td><td>纯 HTTP GET + ID 缓存</td><td>按 IP 累积，触发后扩散到全站；302→valid.php</td><td><span class="pill p-bad">⚠ 当前被风控</span></td><td>34 ID / 29 条岗位薪资</td></tr><tr><td><strong>小红书 xiaohongshu.com</strong></td><td>是</td><td>有头模式 + 搜索/详情 API</td><td>详情连续请求总量敏感；461 / 验证码</td><td><span class="pill p-ok">可用（需限速）</span></td><td>2,162 列表 / 118 详情 / 544 评论</td></tr><tr><td><strong>X / Twitter</strong></td><td>是</td><td>SearchTimeline 按季度分段</td><td>GraphQL 手工分页 404</td><td><span class="pill p-ok">可用</span></td><td>历史 BTC 专题</td></tr>
+<tr><td><strong>脉脉 maimai.cn</strong></td><td>是</td><td>持久化 profile + RSC 流拦截</td><td>搜索 ≤1 次/30min；频道/专题页不受搜索风控</td><td><span class="pill p-ok">可用</span></td><td>42,558 帖（四大专题）</td></tr><tr><td><strong>牛客 nowcoder.com</strong></td><td>否</td><td>公开 JSON API</td><td>无</td><td><span class="pill p-ok">可用</span></td><td>7,092 条 / 16 家 / 91 评论</td></tr><tr><td><strong>职友集 jobui.com</strong></td><td>否</td><td>纯 HTTP GET + ID 缓存</td><td>按 IP 累积，触发后扩散到全站；302→valid.php</td><td><span class="pill p-bad">⚠ 当前被风控</span></td><td>34 ID / 29 条岗位薪资</td></tr><tr><td><strong>小红书 xiaohongshu.com</strong></td><td>是</td><td>有头模式 + 搜索/详情 API</td><td>详情连续请求总量敏感；461 / 验证码</td><td><span class="pill p-ok">可用（需限速）</span></td><td>2,162 列表 / 168 详情 / 1,034 评论</td></tr><tr><td><strong>X / Twitter</strong></td><td>是</td><td>SearchTimeline 按季度分段</td><td>GraphQL 手工分页 404</td><td><span class="pill p-ok">可用</span></td><td>历史 BTC 专题</td></tr>
 </tbody></table>
 
 <h2>二、脉脉专题清单</h2>
@@ -53,14 +53,14 @@ ul{margin:8px 0 8px 20px;padding:0;font-size:13.5px}li{margin:5px 0}.foot{color:
 <tr><td>相对时间解析产生未来日期</td><td>1,212 条 / 16 天</td><td>已修 <code>lib/datefilter.js</code>；历史 coverage.json 待按新口径重算</td></tr>
 <tr><td>四大专题评论为 0</td><td>4 专题</td><td>确认「没抓」，已由项目侧 v3/v4 链路补抓</td></tr>
 <tr><td>牛客内推软文污染</td><td>贝壳 131 条中大量</td><td>清洗后仅少量真实体验，只作旁证</td></tr>
-<tr><td>小红书详情覆盖低</td><td>5.5%</td><td>按标题/互动分诊续抓</td></tr>
+<tr><td>小红书详情覆盖低</td><td>7.8%</td><td>按标题/互动分诊续抓</td></tr>
 <tr><td>职友集 IP 风控</td><td>全站跳验证码</td><td>已加 preflight 熔断，冷却期禁止采集</td></tr>
 </tbody></table>
 
 <h2>五、待办看板</h2>
 <table><thead><tr><th style="width:90px">状态</th><th style="width:230px">事项</th><th>结果 / 症结</th></tr></thead><tbody>
 <tr><td><span class="pill p-ok">已完成</span></td><td><strong>牛客「裁员」正则</strong></td><td>滴滴 40.2%→1.8%、拼多多 63.6%→3.7%</td></tr><tr><td><span class="pill p-ok">已完成</span></td><td><strong>growthScore 薪资口径 v3.1</strong></td><td>公司均薪退出打分，新增 _meta 说明</td></tr><tr><td><span class="pill p-ok">已完成</span></td><td><strong>cloudflared 下线</strong></td><td>全面迁 GitHub Pages</td></tr><tr><td><span class="pill p-ok">已完成</span></td><td><strong>脉脉评论链路</strong></td><td>RSC cmts/title/id/egid + 详情页循环展开，覆盖率 88.1%</td></tr><tr><td><span class="pill p-ok">已完成</span></td><td><strong>评论清洗过滤</strong></td><td>广告/乱码/求职搭话/无效/重复；389 条验证无误杀</td></tr><tr><td><span class="pill p-ok">已完成</span></td><td><strong>职友集风控守卫</strong></td><td>302 链检测 + 6h 冷却 + 5 个脚本入口 preflight</td></tr>
-<tr><td><span class="pill p-warn">TODO-1</span></td><td><strong>职友集剩余岗位细分薪资</strong></td><td>34 ID / 29 条已采；IP 被风控，需 preflight 放行</td></tr><tr><td><span class="pill p-warn">TODO-2</span></td><td><strong>小红书详情覆盖率 5.5%</strong></td><td>按分诊规则限速补抓，目标 15%+</td></tr><tr><td><span class="pill p-warn">TODO-3</span></td><td><strong>脉脉长尾公司评论样本不足</strong></td><td>多数公司 &lt;10 条，不得给 A</td></tr><tr><td><span class="pill p-warn">TODO-4</span></td><td><strong>数据源与结构缺口</strong></td><td>公司主页 404、offer 专题无数据、内推软文、历史日期口径</td></tr>
+<tr><td><span class="pill p-warn">TODO-1</span></td><td><strong>职友集剩余岗位细分薪资</strong></td><td>34 ID / 29 条已采；IP 被风控，需 preflight 放行</td></tr><tr><td><span class="pill p-warn">TODO-2</span></td><td><strong>小红书详情覆盖率 7.8%</strong></td><td>2,162 条列表 / 168 篇详情；按分诊规则限速补抓，单日累计 ≤36 篇</td></tr><tr><td><span class="pill p-warn">TODO-3</span></td><td><strong>脉脉长尾公司评论样本不足</strong></td><td>多数公司 &lt;10 条，不得给 A</td></tr><tr><td><span class="pill p-warn">TODO-4</span></td><td><strong>数据源与结构缺口</strong></td><td>公司主页 404、offer 专题无数据、内推软文、历史日期口径</td></tr>
 </tbody></table>
 
 <h2>六、如何复现</h2>
