@@ -1,6 +1,6 @@
 # web-analysis-ai
 
-> 📊 **能力盘点报告**（2026-11-14 快照）：[在线交互版](https://109751269-sketch.github.io/web-analysis-ai/) ｜ [Markdown 版](docs/CAPABILITY.md) ｜ [求职视角版](https://109751269-sketch.github.io/career-report/skill-audit/)
+> 📊 **能力盘点**（2026-11-14 快照，[唯一版本](https://109751269-sketch.github.io/web-analysis-ai/)）：源文件 `docs/index.html`（仓库内可读 `docs/CAPABILITY.md`）。2026-11-14 已把求职站的重复版本合并进来，旧地址 `career-report/skill-audit/` 只保留跳转。
 > 含渠道矩阵、专题帖子量/评论量/时间范围、评论采集能力验证、数据健康度与 TODO 看板。
 
 Agent 主导的网页抓取与分析工作流。引擎（Node + Playwright）自包含在本 skill 的 `lib/`，任务与产物落在独立工作区，两边分离。
@@ -274,5 +274,5 @@ web-analysis-ai/
 - [站点分册索引](sites/README.md) — 各渠道连接方式、节流参数、风控信号、渠道决策树
 - [工作流主体](SKILL.md) — 完整阶段定义与裁决表
 - [踩坑经验](EXPERIENCE.md) — 每次试错的具体根因与修法
-- [能力盘点](docs/CAPABILITY.md) — 渠道/专题/评论数据量与数据健康度（[在线版](https://109751269-sketch.github.io/web-analysis-ai/)）
+- [能力盘点](https://109751269-sketch.github.io/web-analysis-ai/) — 唯一版本；源文件 [docs/index.html](docs/index.html) / [docs/CAPABILITY.md](docs/CAPABILITY.md)
 - [待办](TODO.md) — 未完成项与阻塞原因

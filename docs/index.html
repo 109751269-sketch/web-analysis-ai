@@ -16,12 +16,13 @@ th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--line);verti
 .note{background:#fff8e8;border:1px solid #f0dfb8;border-radius:9px;padding:12px 16px;font-size:12.5px;color:#6b5320;margin:14px 0}
 ul{margin:8px 0 8px 20px;padding:0;font-size:13.5px}li{margin:5px 0}.foot{color:var(--sub);font-size:11.5px;text-align:center;padding:18px 0 0}
 @media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}table{font-size:12px}}</style></head><body><div class="wrap">
-<div style="font-size:12.5px;margin-bottom:12px"><a href="https://github.com/109751269-sketch/web-analysis-ai">← 技能仓库</a> ｜ <a href="https://109751269-sketch.github.io/career-report/skill-audit/">求职视角版</a></div>
+<div style="font-size:12.5px;margin-bottom:12px"><a href="https://github.com/109751269-sketch/web-analysis-ai">← 技能仓库</a> ｜ <a href="https://109751269-sketch.github.io/career-report/">求职研究站</a> ｜ 本页为唯一能力盘点版本</div>
 <header class="hero"><h1>web-analysis-ai · 能力盘点</h1>
 <p>职场信息抓取与分析能力的全量体检：渠道、专题、帖子量、评论量、时间范围、数据健康度与待办。</p>
 <div class="meta">快照 2026-11-14 ｜ 数据目录 F:\despseekharness\crawler\output ｜ 不含登录凭据与风控参数细节</div></header>
 <div class="kpis"><div class="kpi"><b>5</b><span>数据渠道</span></div><div class="kpi"><b>4</b><span>脉脉固定专题</span></div><div class="kpi"><b>42,558</b><span>四大专题去重帖</span></div><div class="kpi"><b>3,045</b><span>有效评论</span></div><div class="kpi"><b>34</b><span>公司 ID 缓存</span></div></div>
-<div class="note"><strong>这份报告是随仓库版本化的能力文档，不是技能指令。</strong>技能加载器只读 <code>SKILL.md</code> 及其引用的 <code>lib/ · sites/ · references/</code>，<code>docs/</code> 不会被注入会话上下文，因此不增加每轮对话成本；GitHub Pages 从 <code>main:/docs</code> 发布本页。</div>
+<div class="note"><strong>一句话结论：</strong>帖子侧已覆盖 4 个固定专题共 42,558 条去重内容，但评论侧长期空白——四大专题评论量为 0 是「任务配置没开评论采集」，不是「没有评论」。本次打通链路后实测覆盖率 88.1%、清洗后有效率 82.9%。</div>
+<div class="note"><strong>这份报告是随仓库版本化的能力文档，不是技能指令；也是本技能唯一一份能力盘点。</strong>技能加载器只读 <code>SKILL.md</code> 及其引用的 <code>lib/ · sites/ · references/</code>，<code>docs/</code> 不会被注入会话上下文，因此不增加每轮对话成本；GitHub Pages 从 <code>main:/docs</code> 发布本页。</div>
 
 <h2>一、渠道矩阵</h2>
 <table><thead><tr><th>渠道</th><th>登录</th><th>取数方式</th><th>风控特征</th><th>状态</th><th>数据量</th></tr></thead><tbody>
@@ -47,6 +48,11 @@ ul{margin:8px 0 8px 20px;padding:0;font-size:13.5px}li{margin:5px 0}.foot{color:
 <tr><td><strong>深圳联友科技</strong></td><td>1</td><td>5</td><td><span class="pill p-warn">thin</span></td></tr><tr><td><strong>明略科技</strong></td><td>1</td><td>2</td><td><span class="pill p-bad">insufficient</span></td></tr><tr><td><strong>贝壳找房</strong></td><td>6</td><td>58</td><td><span class="pill p-ok">ok</span></td></tr><tr><td><strong>沃尔玛中国</strong></td><td>1</td><td>10</td><td><span class="pill p-ok">ok</span></td></tr><tr><td><strong>瑞幸咖啡</strong></td><td>1</td><td>2</td><td><span class="pill p-bad">insufficient</span></td></tr>
 </tbody></table>
 <p class="sub">评论的价值是正文没有的增量信息（如「贝壳财务一年流动二十人、熬到十二点、大量裁员」）。但「没有评价」只能记样本不足，不能当好评。</p>
+<h3>3.1 历史评论数据为什么不能用于打分</h3>
+<table><thead><tr><th>目录</th><th>条数</th><th>问题</th></tr></thead><tbody>
+<tr><td><code>maimai_dji_search</code></td><td>3,796</td><td>每条为一整块字符串，楼中楼糊在一起，无作者/时间</td></tr><tr><td><code>maimai_gossip_comments</code></td><td>989</td><td>同上，且含 taou.cn 短链广告</td></tr><tr><td><code>maimai_recommended_comments</code></td><td>1,153</td><td>同上</td></tr><tr><td><code>_smoke_comments_v2</code></td><td>202</td><td>抓错容器：抓到的是帖子列表不是评论区</td></tr>
+</tbody></table>
+<p class="sub">合计 6,140 条：每条是一整块字符串（楼中楼糊在一起、无作者/时间/点赞），夹带短链广告；另有 202 条抓错容器拿到的是帖子列表。只能证明「曾抓过」，不能作为口碑证据。</p>
 
 <h2>四、数据健康度</h2>
 <table><thead><tr><th>问题</th><th>规模</th><th>处理</th></tr></thead><tbody>
@@ -55,6 +61,7 @@ ul{margin:8px 0 8px 20px;padding:0;font-size:13.5px}li{margin:5px 0}.foot{color:
 <tr><td>牛客内推软文污染</td><td>贝壳 131 条中大量</td><td>清洗后仅少量真实体验，只作旁证</td></tr>
 <tr><td>小红书详情覆盖低</td><td>7.8%</td><td>按标题/互动分诊续抓</td></tr>
 <tr><td>职友集 IP 风控</td><td>全站跳验证码</td><td>已加 preflight 熔断，冷却期禁止采集</td></tr>
+<tr><td>评价主体错位</td><td>定性</td><td>销售/门店/基层岗评价不能代表总部数据岗；跨主体口碑已在求职报告中标注</td></tr>
 </tbody></table>
 
 <h2>五、待办看板</h2>
@@ -63,14 +70,23 @@ ul{margin:8px 0 8px 20px;padding:0;font-size:13.5px}li{margin:5px 0}.foot{color:
 <tr><td><span class="pill p-warn">TODO-1</span></td><td><strong>职友集剩余岗位细分薪资</strong></td><td>34 ID / 29 条已采；IP 被风控，需 preflight 放行</td></tr><tr><td><span class="pill p-warn">TODO-2</span></td><td><strong>小红书详情覆盖率 7.8%</strong></td><td>2,162 条列表 / 168 篇详情；按分诊规则限速补抓，单日累计 ≤36 篇</td></tr><tr><td><span class="pill p-warn">TODO-3</span></td><td><strong>脉脉长尾公司评论样本不足</strong></td><td>多数公司 &lt;10 条，不得给 A</td></tr><tr><td><span class="pill p-warn">TODO-4</span></td><td><strong>数据源与结构缺口</strong></td><td>公司主页 404、offer 专题无数据、内推软文、历史日期口径</td></tr>
 </tbody></table>
 
-<h2>六、如何复现</h2>
+<h2>六、能力缺口</h2>
+<ul>
+<li><strong>评论覆盖仍不完整</strong>：按公司优先 + 尽力全量采集，四大专题 4.2 万帖不可能逐帖抓评论；目前先抓「目标公司相关帖 + 高评论数帖」。</li>
+<li><strong>公司主页不可直达</strong>：脉脉公司页 404，只能靠专题/频道 feed 里筛 <code>title</code>，长尾公司声量天然偏低。</li>
+<li><strong>「没有评价」不等于「口碑好」</strong>：中小/国企雇主声量极低，样本不足必须标注，不能默认推荐。</li>
+<li><strong>渠道单一</strong>：看准、BOSS 点评、知乎、贴吧、微博未接入；offer 选择类专题无数据。</li>
+<li><strong>时效</strong>：部分评价为 2022–2024 年；最新两天目标公司零新帖，无法验证「当下」口碑。</li>
+</ul>
+
+<h2>七、如何复现</h2>
 <div class="box"><code>cd F:/despseekharness/crawler</code><br>
 <code>node audit_stats.js</code> → 汇总各渠道数据量<br>
 <code>node reclean_comments.js v4</code> → 重洗评论 + 生成公司证据清单<br>
 <code>node jobui_preflight.js</code> → 职友集风控体检（exit 2 = 禁止采集）<br>
 生成脚本在工作区 <code>_build_skill_capability.js</code>，产物写入本仓库 <code>docs/</code>。</div>
 
-<h2>七、边界</h2>
+<h2>八、边界</h2>
 <ul>
 <li>数字来自本地抓取产物的实际文件统计，不是站点自报计数；帖子量按正文去重，覆盖时间已剔除未来日期。</li>
 <li>不含 Cookie / 账号 / token 与具体风控阈值；<code>cookies/ · profiles/</code> 已在 <code>.gitignore</code> 排除。</li>
