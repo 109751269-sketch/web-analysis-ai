@@ -1,5 +1,8 @@
 # web-analysis-ai
 
+> 📊 **能力盘点报告**（2026-11-14 快照）：[在线交互版](https://109751269-sketch.github.io/web-analysis-ai/) ｜ [Markdown 版](docs/CAPABILITY.md) ｜ [求职视角版](https://109751269-sketch.github.io/career-report/skill-audit/)
+> 含渠道矩阵、专题帖子量/评论量/时间范围、评论采集能力验证、数据健康度与 TODO 看板。
+
 Agent 主导的网页抓取与分析工作流。引擎（Node + Playwright）自包含在本 skill 的 `lib/`，任务与产物落在独立工作区，两边分离。
 
 核心思路：**每一步都裁决该用确定性脚本还是大模型判断**。能写成代码的（cookie 注入、滚动、翻页、字段提取、节流）交给脚本；需要语义判断的（这个选择器对不对、这批数据像不像被风控了、字段该归到哪一类）交给 agent。跑通一次的流程沉淀成 `sites/` 分册和 `playbooks/` 配置，第二次直接复用。
@@ -14,7 +17,7 @@ Agent 主导的网页抓取与分析工作流。引擎（Node + Playwright）自
 |---|---|---|---|---|
 | **脉脉** maimai.cn | 是 | 持久化 profile + RSC 流拦截 | 中 | ✅ 主力，数据最丰富 |
 | **牛客** nowcoder.com | **否** | 公开 HTTP API | 无 | ✅ 主力，免登录，优先抓 |
-| **职友集** jobui.com | 否 | 纯 HTTP GET | 中（仅搜索接口） | ✅ 补充，交叉验证 |
+| **职友集** jobui.com | 否 | 纯 HTTP GET + ID 缓存 | 中高（**按 IP 累积，触发后全站**） | ⚠️ 需 preflight；执行前读 `sites/jobui.com.md` |
 | **小红书** xiaohongshu.com | 是 | 持久化 profile + 有头模式 | **高** | ⚠️ 需限速，易触发风控 |
 | **X / Twitter** x.com | 是 | Playwright + 分段搜索 | 中 | ✅ 时间线采集 |
 
@@ -142,20 +145,22 @@ headless Chrome 缺 GPU 渲染、`navigator.webdriver` 为 true，是多数站�
 
 ## 三、待办
 
-本 skill 的待办清单维护在 **`TODO.md`**，开工前必读，做完即删。当前 6 项未完成：
+本 skill 的待办清单维护在 **`TODO.md`**，开工前必读，做完即删。当前 4 项未完成：
 
 | # | 事项 | 症结 |
 |---|---|---|
-| TODO-1 | 职友集剩余公司 ID 未解析 | 搜索接口连调 2 次触发验证码，需 ≥25s 间隔 |
-| TODO-2 | 牛客「裁员」统计被「优化」污染 | 正则误命中「优化简历」「性能优化」，稳定性信号暂不可用 |
-| TODO-3 | 职友集公司级均值不能对标技术岗 | 统计口径含骑手/客服岗，需改走岗位细分页 |
-| TODO-4 | 在线发布仍不稳定 | cloudflared 临时隧道，URL 每次变；长期方案待定 |
-| TODO-5 | 小红书详情覆盖率仅 2.4% | 1,995 条列表只抓了 48 篇详情 |
-| TODO-6 | 职友集岗位细分薪资未批量采集 | `jobSalary()` 已实现，只测过携程 3 个岗位 |
+| TODO-1 | 职友集剩余岗位细分薪资 | 34 个 ID / 29 条已采；**IP 被全站风控**，需 `jobui_preflight.js` 放行后再续采 |
+| TODO-2 | 小红书详情覆盖率 5.5% | 2,162 条列表只抓了 118 篇；按标题/互动分诊、限速补抓 |
+| TODO-3 | 脉脉长尾公司评论样本不足 | 139 帖 / 3,045 条有效评论，多数公司 <10 条，按规则不得给 A |
+| TODO-4 | 数据源与结构缺口 | 公司主页 404、offer 选择专题无数据、内推软文污染、历史日期口径 |
 
-### 关于在线发布（TODO-4 补充）
+已完成并移除：牛客裁员正则、growthScore 薪资口径、cloudflared 下线、脉脉评论链路、评论清洗过滤、职友集风控守卫。
 
-已确立的稳定方案：GitHub Pages。仓库 public，推 `index.html` 即得永久链接，不依赖本地进程。临时隧道方案（cloudflared / localtunnel）已证伪，坑记录在 `TODO.md`。
+### 在线发布
+
+已确立的稳定方案：**GitHub Pages**（仓库 public，推静态页即得永久链接，不依赖本地进程）。
+本仓库的 `docs/` 即从 `main` 发布的能力盘点页；求职专题另见 [career-report](https://109751269-sketch.github.io/career-report/)。
+临时隧道方案（cloudflared / localtunnel）已证伪并下线，坑记录在 `EXPERIENCE.md`。
 
 发布后必须用 Playwright 真实浏览器验证，不能只看 curl 状态码——localtunnel 曾出现「curl 返回 200，浏览器只看到密码页」。
 
@@ -269,3 +274,5 @@ web-analysis-ai/
 - [站点分册索引](sites/README.md) — 各渠道连接方式、节流参数、风控信号、渠道决策树
 - [工作流主体](SKILL.md) — 完整阶段定义与裁决表
 - [踩坑经验](EXPERIENCE.md) — 每次试错的具体根因与修法
+- [能力盘点](docs/CAPABILITY.md) — 渠道/专题/评论数据量与数据健康度（[在线版](https://109751269-sketch.github.io/web-analysis-ai/)）
+- [待办](TODO.md) — 未完成项与阻塞原因

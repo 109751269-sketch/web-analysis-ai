@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>web-analysis-ai · 能力盘点</title><style>:root{--bg:#f5f7fa;--panel:#fff;--panel2:#f9fbfd;--ink:#1f2329;--sub:#5f6b7a;--line:#e3e8ef;--brand:#1a5fb4;--good:#0f7b48;--warn:#b26a00;--bad:#c0392b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+a{color:var(--brand);text-decoration:none}a:hover{text-decoration:underline}.wrap{max-width:1080px;margin:0 auto;padding:28px 20px 60px}
+.hero{background:linear-gradient(135deg,#1a5fb4,#2b7fd4);color:#fff;border-radius:16px;padding:32px 34px;margin-bottom:20px}
+.hero h1{margin:0 0 8px;font-size:27px}.hero p{margin:0;font-size:14px;opacity:.94}.hero .meta{margin-top:12px;font-size:12.5px;opacity:.85}
+h2{font-size:19px;margin:30px 0 10px;padding-bottom:8px;border-bottom:2px solid var(--line)}h3{font-size:15px;margin:20px 0 8px;color:var(--brand)}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:18px 0}.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 12px;text-align:center}
+.kpi b{display:block;font-size:23px;color:var(--brand);line-height:1.25}.kpi span{font-size:11.5px;color:var(--sub)}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13px;margin:10px 0}
+th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}th{background:var(--panel2);font-size:12px;color:var(--sub)}tr:last-child td{border-bottom:none}
+.sub{color:var(--sub);font-size:11.5px}code{background:var(--panel2);padding:1px 5px;border-radius:4px;font-size:11.5px}
+.pill{display:inline-block;font-size:11px;font-weight:700;border-radius:9px;padding:1px 8px;white-space:nowrap}.p-ok{background:#e6f5ec;color:var(--good)}.p-warn{background:#fff2dc;color:var(--warn)}.p-bad{background:#fdecea;color:var(--bad)}
+.box{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:9px;padding:13px 17px;margin:12px 0;font-size:13.5px}
+.note{background:#fff8e8;border:1px solid #f0dfb8;border-radius:9px;padding:12px 16px;font-size:12.5px;color:#6b5320;margin:14px 0}
+ul{margin:8px 0 8px 20px;padding:0;font-size:13.5px}li{margin:5px 0}.foot{color:var(--sub);font-size:11.5px;text-align:center;padding:18px 0 0}
+@media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}table{font-size:12px}}</style></head><body><div class="wrap">
+<div style="font-size:12.5px;margin-bottom:12px"><a href="https://github.com/109751269-sketch/web-analysis-ai">← 技能仓库</a> ｜ <a href="https://109751269-sketch.github.io/career-report/skill-audit/">求职视角版</a></div>
+<header class="hero"><h1>web-analysis-ai · 能力盘点</h1>
+<p>职场信息抓取与分析能力的全量体检：渠道、专题、帖子量、评论量、时间范围、数据健康度与待办。</p>
+<div class="meta">快照 2026-11-14 ｜ 数据目录 F:\despseekharness\crawler\output ｜ 不含登录凭据与风控参数细节</div></header>
+<div class="kpis"><div class="kpi"><b>5</b><span>数据渠道</span></div><div class="kpi"><b>4</b><span>脉脉固定专题</span></div><div class="kpi"><b>42,558</b><span>四大专题去重帖</span></div><div class="kpi"><b>3,045</b><span>有效评论</span></div><div class="kpi"><b>34</b><span>公司 ID 缓存</span></div></div>
+<div class="note"><strong>这份报告是随仓库版本化的能力文档，不是技能指令。</strong>技能加载器只读 <code>SKILL.md</code> 及其引用的 <code>lib/ · sites/ · references/</code>，<code>docs/</code> 不会被注入会话上下文，因此不增加每轮对话成本；GitHub Pages 从 <code>main:/docs</code> 发布本页。</div>
+
+<h2>一、渠道矩阵</h2>
+<table><thead><tr><th>渠道</th><th>登录</th><th>取数方式</th><th>风控特征</th><th>状态</th><th>数据量</th></tr></thead><tbody>
+<tr><td><strong>脉脉 maimai.cn</strong></td><td>是</td><td>持久化 profile + RSC 流拦截</td><td>搜索 ≤1 次/30min；频道/专题页不受搜索风控</td><td><span class="pill p-ok">可用</span></td><td>42,558 帖（四大专题）</td></tr><tr><td><strong>牛客 nowcoder.com</strong></td><td>否</td><td>公开 JSON API</td><td>无</td><td><span class="pill p-ok">可用</span></td><td>7,092 条 / 16 家 / 91 评论</td></tr><tr><td><strong>职友集 jobui.com</strong></td><td>否</td><td>纯 HTTP GET + ID 缓存</td><td>按 IP 累积，触发后扩散到全站；302→valid.php</td><td><span class="pill p-bad">⚠ 当前被风控</span></td><td>34 ID / 29 条岗位薪资</td></tr><tr><td><strong>小红书 xiaohongshu.com</strong></td><td>是</td><td>有头模式 + 搜索/详情 API</td><td>详情连续请求总量敏感；461 / 验证码</td><td><span class="pill p-ok">可用（需限速）</span></td><td>2,162 列表 / 118 详情 / 544 评论</td></tr><tr><td><strong>X / Twitter</strong></td><td>是</td><td>SearchTimeline 按季度分段</td><td>GraphQL 手工分页 404</td><td><span class="pill p-ok">可用</span></td><td>历史 BTC 专题</td></tr>
+</tbody></table>
+
+<h2>二、脉脉专题清单</h2>
+<table><thead><tr><th>专题</th><th>类型</th><th>帖子量（原始/去重）</th><th>评论量</th><th>覆盖时间</th></tr></thead><tbody>
+<tr><td><strong>公司印象大爆料</strong></td><td>固定专题</td><td>31,664 / 11,782</td><td><span class="pill p-warn">0（未抓取）</span></td><td>2025-10-05~2026-11-13</td></tr><tr><td><strong>职级薪资大揭秘</strong></td><td>固定专题</td><td>10,479 / 10,476</td><td><span class="pill p-warn">0（未抓取）</span></td><td>2025-10-01~2026-11-14</td></tr><tr><td><strong>爆料各司工时强度</strong></td><td>固定专题</td><td>5,769 / 5,769</td><td><span class="pill p-warn">0（未抓取）</span></td><td>2025-10-01~2026-11-14</td></tr><tr><td><strong>我来爆个料</strong></td><td>固定专题</td><td>15,551 / 14,531</td><td><span class="pill p-warn">0（未抓取）</span></td><td>2025-10-14~2026-11-11</td></tr><tr><td><strong>职言频道</strong></td><td>频道</td><td>978 / 978</td><td><span class="pill p-warn">0（未抓取）</span></td><td>2026-09-02~2026-09-11</td></tr><tr><td><strong>推荐频道</strong></td><td>频道</td><td>150 / 150</td><td><span class="pill p-bad">1,153（旧格式·不可用）</span></td><td>—</td></tr><tr><td><strong>大疆关键词搜索</strong></td><td>搜索</td><td>309 / 309</td><td><span class="pill p-bad">3,796（旧格式·不可用）</span></td><td>—</td></tr><tr><td><strong>职言评论补抓</strong></td><td>频道</td><td>150 / 150</td><td><span class="pill p-bad">989（旧格式·不可用）</span></td><td>—</td></tr>
+</tbody></table>
+<div class="box"><strong>四大专题合计 42,558 条去重帖，评论全部为 0 =「没抓」而非「没评论」。</strong>历史 5,938 条评论虽抓到过，但每条是一整块字符串（楼中楼糊在一起、无作者/时间），夹带短链广告，不可用于打分。</div>
+
+<h2>三、评论采集能力</h2>
+<table><thead><tr><th style="width:190px">结论</th><th>依据</th></tr></thead><tbody>
+<tr><td><strong>能抓到</strong></td><td>卡片无链接、不显示真实评论数（那个数字是点赞数）；RSC 带 <code>cmts</code> + <code>id/egid</code>，可直拼 <code>gossip-detail</code>，拦截 <code>comments.lst</code> 拿结构化评论</td></tr>
+<tr><td><strong>能正确关联</strong></td><td>按帖 ID 建详情页 URL，评论与正文一一对应；公司印象 62.2% 的帖有评论、职言 78.8%</td></tr>
+<tr><td><strong>能按公司定向</strong></td><td>RSC 的 <code>title</code> 才是「评价对象公司名」，此前被 <code>collectPosts</code> 丢弃，项目侧 <code>collectPostsRich</code> 已补齐</td></tr>
+<tr><td><strong>覆盖率</strong></td><td>首屏约 28%，循环展开到收敛后 <strong>88.1%</strong>（全量一轮）</td></tr>
+</tbody></table>
+<div class="box"><strong>全量一轮：</strong>帖子池 802 帖（公司命中 10 帖），实抓 139 帖；声明 4,171 条 → 抓到 3,673 → 有效 <strong>3,045</strong>（82.9%）。剔除广告 153 / 无效 119 / 求职搭话 284 / 重复 72。</div>
+<h3>按公司样本充足度（&lt;10 条不得给 A）</h3>
+<table><thead><tr><th>公司</th><th>帖子</th><th>有效评论</th><th>判定</th></tr></thead><tbody>
+<tr><td><strong>深圳联友科技</strong></td><td>1</td><td>5</td><td><span class="pill p-warn">thin</span></td></tr><tr><td><strong>明略科技</strong></td><td>1</td><td>2</td><td><span class="pill p-bad">insufficient</span></td></tr><tr><td><strong>贝壳找房</strong></td><td>6</td><td>58</td><td><span class="pill p-ok">ok</span></td></tr><tr><td><strong>沃尔玛中国</strong></td><td>1</td><td>10</td><td><span class="pill p-ok">ok</span></td></tr><tr><td><strong>瑞幸咖啡</strong></td><td>1</td><td>2</td><td><span class="pill p-bad">insufficient</span></td></tr>
+</tbody></table>
+<p class="sub">评论的价值是正文没有的增量信息（如「贝壳财务一年流动二十人、熬到十二点、大量裁员」）。但「没有评价」只能记样本不足，不能当好评。</p>
+
+<h2>四、数据健康度</h2>
+<table><thead><tr><th>问题</th><th>规模</th><th>处理</th></tr></thead><tbody>
+<tr><td>相对时间解析产生未来日期</td><td>1,212 条 / 16 天</td><td>已修 <code>lib/datefilter.js</code>；历史 coverage.json 待按新口径重算</td></tr>
+<tr><td>四大专题评论为 0</td><td>4 专题</td><td>确认「没抓」，已由项目侧 v3/v4 链路补抓</td></tr>
+<tr><td>牛客内推软文污染</td><td>贝壳 131 条中大量</td><td>清洗后仅少量真实体验，只作旁证</td></tr>
+<tr><td>小红书详情覆盖低</td><td>5.5%</td><td>按标题/互动分诊续抓</td></tr>
+<tr><td>职友集 IP 风控</td><td>全站跳验证码</td><td>已加 preflight 熔断，冷却期禁止采集</td></tr>
+</tbody></table>
+
+<h2>五、待办看板</h2>
+<table><thead><tr><th style="width:90px">状态</th><th style="width:230px">事项</th><th>结果 / 症结</th></tr></thead><tbody>
+<tr><td><span class="pill p-ok">已完成</span></td><td><strong>牛客「裁员」正则</strong></td><td>滴滴 40.2%→1.8%、拼多多 63.6%→3.7%</td></tr><tr><td><span class="pill p-ok">已完成</span></td><td><strong>growthScore 薪资口径 v3.1</strong></td><td>公司均薪退出打分，新增 _meta 说明</td></tr><tr><td><span class="pill p-ok">已完成</span></td><td><strong>cloudflared 下线</strong></td><td>全面迁 GitHub Pages</td></tr><tr><td><span class="pill p-ok">已完成</span></td><td><strong>脉脉评论链路</strong></td><td>RSC cmts/title/id/egid + 详情页循环展开，覆盖率 88.1%</td></tr><tr><td><span class="pill p-ok">已完成</span></td><td><strong>评论清洗过滤</strong></td><td>广告/乱码/求职搭话/无效/重复；389 条验证无误杀</td></tr><tr><td><span class="pill p-ok">已完成</span></td><td><strong>职友集风控守卫</strong></td><td>302 链检测 + 6h 冷却 + 5 个脚本入口 preflight</td></tr>
+<tr><td><span class="pill p-warn">TODO-1</span></td><td><strong>职友集剩余岗位细分薪资</strong></td><td>34 ID / 29 条已采；IP 被风控，需 preflight 放行</td></tr><tr><td><span class="pill p-warn">TODO-2</span></td><td><strong>小红书详情覆盖率 5.5%</strong></td><td>按分诊规则限速补抓，目标 15%+</td></tr><tr><td><span class="pill p-warn">TODO-3</span></td><td><strong>脉脉长尾公司评论样本不足</strong></td><td>多数公司 &lt;10 条，不得给 A</td></tr><tr><td><span class="pill p-warn">TODO-4</span></td><td><strong>数据源与结构缺口</strong></td><td>公司主页 404、offer 专题无数据、内推软文、历史日期口径</td></tr>
+</tbody></table>
+
+<h2>六、如何复现</h2>
+<div class="box"><code>cd F:/despseekharness/crawler</code><br>
+<code>node audit_stats.js</code> → 汇总各渠道数据量<br>
+<code>node reclean_comments.js v4</code> → 重洗评论 + 生成公司证据清单<br>
+<code>node jobui_preflight.js</code> → 职友集风控体检（exit 2 = 禁止采集）<br>
+生成脚本在工作区 <code>_build_skill_capability.js</code>，产物写入本仓库 <code>docs/</code>。</div>
+
+<h2>七、边界</h2>
+<ul>
+<li>数字来自本地抓取产物的实际文件统计，不是站点自报计数；帖子量按正文去重，覆盖时间已剔除未来日期。</li>
+<li>不含 Cookie / 账号 / token 与具体风控阈值；<code>cookies/ · profiles/</code> 已在 <code>.gitignore</code> 排除。</li>
+<li>采集内容涉及真实员工薪资与工时评价，产物只落本地工作区，公开发布前须核查脱敏。</li>
+<li>风控是终止信号：遇验证码/登录墙立即停，不重试、不换账号、不换后端。</li>
+</ul>
+<div class="foot">Generated 2026-11-14 · web-analysis-ai capability audit</div>
+</div></body></html>
