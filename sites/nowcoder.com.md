@@ -61,16 +61,29 @@ Base: `https://gw-c.nowcoder.com/api/sparta`
 
 **结论**：牛客没有「携程金融」独立公司实体，金融线内容只能靠在「携程」的评价正文里搜关键词，命中率极低（91 条里 0 条）。
 
-### 坑 5：正文在 contentData 里，contentId 是字符串
+### 坑 5：正文有两条路径（按 contentType 分流），contentId 是字符串
+
+**⚠️ 2026-11-14 补全**：同一份 `nc_<id>_<公司>.json` 里混着两种记录类型，只取一条路径会**漏掉约一半正文**，并制造「污染率 71.5%」这类假信号（实测修正后真实软文率仅 1.2%）。
+
+| `contentType` | 正文路径 | 实测占比（美团 921 条） |
+|---|---|---|
+| `74` | `momentData.content` | 518 |
+| `250` | `contentData.content` | 403 |
 
 ```js
-rec.contentId          // 字符串，如 '929473191548899328'
-rec.contentData.title  // 标题
-rec.contentData.content // 正文
-rec.frequencyData.commentCnt // 评论数
+// 写任何牛客解析前，先按 contentType 分组抽样，确认字段路径
+function textOf(rec) {
+  const m = rec.momentData || {}, c = rec.contentData || {}, ie = rec.interviewExp || {};
+  return String(m.content || c.content || ie.content || rec.content || rec.title || '')
+    .replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+rec.contentId                    // 字符串，如 '929473191548899328'
+rec.frequencyData?.commentCnt    // 评论数（74 型）
+rec.momentData?.commentCount     // 评论数（250 型可能不同）
 ```
 
 注意 `contentId` 是字符串，用 `===` 比较数字会失败。
+清洗脚本见工作区 `crawler/clean_nowcoder_spam.js`（15 家 / 7,001 条，软文 83 条，干净集 `_clean_records.jsonl`）。
 
 ---
 

@@ -967,3 +967,23 @@ node xhs_detail_refill.js --dry            # 只看分诊候选，不启浏览�
 node xhs_detail_refill.js --max=36 --batch=18   # 单日 ≤36 篇
 ```
 命中判据：日志出现 `DONE 36 篇` 且没有「风控/登录态中断」；若出现 461 应立即停，不要 `--reset` 或换账号重试。
+
+---
+
+## 三十九、牛客记录的异构正文路径导致「污染率假信号」（2026-11-14）
+
+| 场景 | 现象 | 对策（已实现 / 下次怎么做） |
+|---|---|---|
+| 清洗牛客内推软文 | 第一版把 4,012/7,001 条判为「无正文」，得出**软文率 71.5%** 的惊人结论；核对后发现是字段路径写错，不是数据脏。**注意：分册「坑 5」其实已记 contentData.content，但没写有两条路径，且本次执行前没读分册 → 属于「本可避开的坑」，已补全分册并强化触发条件** | `contentType=74` 的正文在 `momentData.content`，**`contentType=250` 在 `contentData.content`**（约占一半）。修 `textOf()` 后无正文 0 条，真实软文率 **83/7,001 = 1.2%**。写解析前必须先按 contentType 分组抽样，别猜字段（呼应 §35.4） |
+| 「贝壳 131 条大量内推软文」的历史结论 | 那批在 `output/nowcoder_recheck/`，`records` 里 `content` 本就为空，根本无法判断是不是软文 | **结论来源是错的**：recheck 批次只有 id/title/likes/comments，无正文。以后引用「某公司口碑被软文污染」必须指明具体数据文件与正文非空率，不能凭印象 |
+| 软文规则的误杀 | 用昵称含「求职/招聘/校招」判批量账号，误杀了真实长文；用 `STRONG` 命中判广告，误杀了长篇体验里偶尔出现的「扫码」；用「实习」做招聘语境词，误杀了「实习期间七点下班正常吗」 | 三条修正：① 批量账号词收紧为 `内推站\|offer站\|内推官\|名企内推\|猎头\|岗位推送`；② `STRONG` 命中但文本 >150 字且含实质体验词时**不判广告**；③ 招聘语境词去掉「实习/base/面试通知」，实质体验词补「下班/电脑/设备/几点/正常吗」。最终 `crawler/clean_nowcoder_spam.js` 剔除 83 条，抽查全部为内推码/专栏/招聘贴 |
+| 旧评论「不可用」其实能复活 | 三个历史目录共 601 帖 / 6,140 条整块字符串评论被判定不可用于打分 | 记录里**保留了 `gossip-detail` URL（含 id + egid）**，可直接用新链路 `harvestPostComments` 重抓。实测 3 帖即拿到 546 条结构化评论、清洗后 427 条有效。已固化为 `crawler/retarget_old_comments.js`（候选 523 帖 / 声明 7,988 条，按评论数优先、断点续采） |
+
+### 39.1 下次如何验证已避开
+
+```bash
+cd F:/despseekharness/crawler
+node clean_nowcoder_spam.js                 # 应显示「无正文 0」「软文率约 1.2%」
+node retarget_old_comments.js --resume --max=50 --max-seconds=1500
+```
+命中判据：`_spam_stats.json` 的 `noText=0`；剔除样例里没有真实长文；重抓产物 `by_company.json` 带 `sampleLevel`。
