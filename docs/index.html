@@ -53,7 +53,7 @@ ul{margin:8px 0 8px 20px;padding:0;font-size:13.5px}li{margin:5px 0}.foot{color:
 <tr><td><code>maimai_dji_search</code></td><td>3,796</td><td>每条为一整块字符串，楼中楼糊在一起，无作者/时间</td></tr><tr><td><code>maimai_gossip_comments</code></td><td>989</td><td>同上，且含 taou.cn 短链广告</td></tr><tr><td><code>maimai_recommended_comments</code></td><td>1,153</td><td>同上</td></tr><tr><td><code>_smoke_comments_v2</code></td><td>202</td><td>抓错容器：抓到的是帖子列表不是评论区</td></tr>
 </tbody></table>
 <p class="sub">合计 6,140 条：整块字符串 + 短链广告，原格式不能作为口碑证据；另有 202 条抓错容器。</p>
-<h3>3.2 历史评论复活（按公司定向重抓）</h3>
+<h3>3.2 历史评论复活与全公司覆盖（不挑公司）</h3>
 <div class="box">按声明评论数优先重抓 <strong>53 帖</strong>：声明 3,386 条 → 抓到 2,566（75.8%）→ 有效 <strong>2,113</strong>（82.3%）。这批以互联网大厂（尤其大疆）为主，可补强大厂口碑证据。</div>
 <table><thead><tr><th>公司</th><th>类型</th><th>帖子</th><th>有效评论</th><th>判定</th></tr></thead><tbody>
 <tr><td><strong>大疆</strong></td><td>大厂</td><td>49</td><td>1965</td><td><span class="pill p-ok">ok</span></td></tr><tr><td><strong>华为</strong></td><td>大厂</td><td>1</td><td>85</td><td><span class="pill p-ok">ok</span></td></tr><tr><td><strong>字节</strong></td><td>大厂</td><td>2</td><td>63</td><td><span class="pill p-ok">ok</span></td></tr><tr><td><strong>阿里</strong></td><td>大厂</td><td>1</td><td>0</td><td><span class="pill p-bad">insufficient</span></td></tr>
@@ -67,6 +67,8 @@ ul{margin:8px 0 8px 20px;padding:0;font-size:13.5px}li{margin:5px 0}.foot{color:
 <tr><td>小红书详情覆盖低</td><td>7.8%</td><td>按标题/互动分诊续抓</td></tr>
 <tr><td>职友集 IP 风控</td><td>全站跳验证码</td><td>已加 preflight 熔断，冷却期禁止采集</td></tr>
 <tr><td>评价主体错位</td><td>定性</td><td>销售/门店/基层岗评价不能代表总部数据岗；跨主体口碑已在求职报告中标注</td></tr>
+<tr><td>小红书风控认知</td><td>旧「单日 ≤36 篇」已废弃</td><td>两次「第 48 篇」对照证明按请求特征扣分、不按速率；真人路径实测 54 篇干净 / 第 55 篇 461，仍未实现无限抓取，剩余变量疑为设备指纹</td></tr>
+<tr><td>「只抓大疆」偏差</td><td>已纠正</td><td>旧白名单只识别 10 帖，RSC <code>title</code> 实际可解析 198 家公司；v5 起公司只作标签不过滤，覆盖轮保证每家至少 1 帖</td></tr>
 </tbody></table>
 
 <h2>五、待办看板</h2>
